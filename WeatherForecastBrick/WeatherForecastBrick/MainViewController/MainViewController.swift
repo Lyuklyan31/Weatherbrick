@@ -4,8 +4,8 @@ import SnapKit
 class MainViewController: UIViewController {
     let viewModel = MainViewModel()
     
-    let backgroundView = BackgroundView()
-    let locationButton = UIButton()
+    private let backgroundView = BackgroundView()
+    private let locationButton = UIButton()
      
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,10 +37,10 @@ class MainViewController: UIViewController {
     }
     
     @objc func openSheet() {
-        let sheetViewController = SheetViewController()
-        sheetViewController.modalPresentationStyle = .pageSheet
+        let locationViewController = LocationViewController()
+        locationViewController.modalPresentationStyle = .pageSheet
         
-        self.present(sheetViewController, animated: true, completion: nil)
+        self.present(locationViewController, animated: true, completion: nil)
     }
 }
 

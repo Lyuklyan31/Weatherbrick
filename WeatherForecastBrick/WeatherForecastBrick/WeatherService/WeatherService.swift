@@ -33,7 +33,7 @@ class WeatherService {
 
 
 
-//completion handler // основна відмінність більший контроль результатів та підтримка всфх версій IOS
+//completion handler // основна відмінність більший контроль результатів та підтримка всіх версій IOS
 class WeatherServiceCompletion {
     func fetchWeatherData(lat: Double, lon: Double, apiKey: String, completion: @escaping (Result<WeatherData, Error>) -> Void) {
         let urlString = "https://api.openweathermap.org/data/3.0/onecall?lat=\(lat)&lon=\(lon)&exclude=minutely&appid=\(apiKey)&units=metric"

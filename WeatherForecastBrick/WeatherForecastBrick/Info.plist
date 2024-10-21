@@ -19,5 +19,19 @@
 			</array>
 		</dict>
 	</dict>
+	<key>plist version=&quot;1.0&quot;</key>
+	<dict>
+		<key>App Transport Security Settings</key>
+		<dict>
+			<key>Exception Domains</key>
+			<dict>
+				<key>openweathermap.org</key>
+				<dict>
+					<key>NSExceptionAllowsInsecureHTTPLoads</key>
+					<true/>
+				</dict>
+			</dict>
+		</dict>
+	</dict>
 </dict>
 </plist>
