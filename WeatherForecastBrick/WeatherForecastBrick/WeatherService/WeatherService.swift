@@ -8,7 +8,8 @@ class WeatherService {
     
     func fetchWeatherData(lat: Double, lon: Double, apiKey: String) async throws -> WeatherData {
         // Forming the URL
-        let urlString = "https://api.openweathermap.org/data/3.0/onecall?lat=\(lat)&lon=\(lon)&exclude=minutely&appid=\(apiKey)&units=metric"
+        
+        let urlString =  "https://api.openweathermap.org/data/2.5/weather?lat=\(lat)&lon=\(lon)&appid=\(apiKey)"
         
         // Validating the URL
         guard let url = URL(string: urlString) else {
@@ -29,9 +30,6 @@ class WeatherService {
         }
     }
 }
-
-
-
 
 //completion handler // основна відмінність більший контроль результатів та підтримка всіх версій IOS
 class WeatherServiceCompletion {
