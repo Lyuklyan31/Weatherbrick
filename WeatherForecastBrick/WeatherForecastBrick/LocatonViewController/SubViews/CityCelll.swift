@@ -17,22 +17,13 @@ class CityCell: UITableViewCell {
     }
 
     func setupSubview() {
-        backgroundCell.layer.cornerRadius = 12
-        backgroundCell.layer.borderWidth = 1.0
-        addSubview(backgroundCell)
-
-        backgroundCell.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview().inset(10)
-            $0.verticalEdges.equalToSuperview().inset(10)
-            $0.height.equalTo(60)
-        }
-
-        cellLabel.font = .systemFont(ofSize: 20, weight: .medium)
+        cellLabel.font = .systemFont(ofSize: 25, weight: .medium)
         cellLabel.textColor = .black
-        backgroundCell.addSubview(cellLabel)
+        cellLabel.numberOfLines = 0
+        addSubview(cellLabel)
 
         cellLabel.snp.makeConstraints {
-            $0.left.equalToSuperview().offset(8)
+            $0.left.equalToSuperview().offset(16)
             $0.right.lessThanOrEqualToSuperview()
             $0.verticalEdges.equalToSuperview().inset(8)
         }
@@ -40,12 +31,11 @@ class CityCell: UITableViewCell {
         chekmark.image = UIImage(systemName: "circle")
         chekmark.tintColor = .black
         chekmark.contentMode = .scaleAspectFit
-        backgroundCell.addSubview(chekmark)
+        addSubview(chekmark)
 
         chekmark.snp.makeConstraints {
             $0.right.equalToSuperview().offset(-16)
-            $0.width.height.equalTo(24)
-            $0.verticalEdges.equalToSuperview().inset(8)
+            $0.verticalEdges.equalToSuperview().inset(16)
         }
     }
 
@@ -53,14 +43,12 @@ class CityCell: UITableViewCell {
     func configure(with cityName: String) {
         cellLabel.text = cityName
     }
-
-    // Функція для вибору комірки
+    
     func select() {
         chekmark.image = UIImage(systemName: "checkmark.circle.fill")
         chekmark.tintColor = .systemGreen
     }
 
-    // Функція для скидання вибору
     func deselect() {
         chekmark.image = UIImage(systemName: "circle")
         chekmark.tintColor = .black
