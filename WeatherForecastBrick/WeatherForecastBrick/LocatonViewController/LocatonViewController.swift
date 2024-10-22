@@ -2,23 +2,45 @@ import UIKit
 
 class LocationViewController: UIViewController {
     
-    private let viewModel = MainViewModel()
+    // MARK: - Properties
+    private let viewModel: ViewModel
+    private var cities = [CityData]()
+    
+    var onCitySelected: (() -> Void)?
     
     private let searchTextField = UISearchTextField()
     private let tableView = UITableView()
     private let backgroundView = UIView()
-    private var cities = [CityData]()
     
     private var selectedIndexPath: IndexPath?
     
+    private var dataSource: UITableViewDiffableDataSource<Int, CityData>!
+    private var snapshot = NSDiffableDataSourceSnapshot<Int, CityData>()
+    
+    
+    init(viewModel: ViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-//        setupTapGesture()
+        configureDefaults()
+    }
+    
+    private func configureDefaults() {
+        setupDataSource()
+        applySnapshot()
     }
 
-    func setupUI() {
-        
+    // MARK: - UI Setup
+    private func setupUI() {
         view.backgroundColor = .systemBackground
         
         view.addSubview(searchTextField)
@@ -27,16 +49,20 @@ class LocationViewController: UIViewController {
         searchTextField.delegate = self
         searchTextField.layer.borderColor = UIColor.black.cgColor
         searchTextField.textColor = .black
-
+        searchTextField.text = viewModel.selectedCityName + ", " + viewModel.selectedContryName
+        
         searchTextField.snp.makeConstraints {
             $0.top.equalToSuperview().offset(20)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(50)
         }
         
+        Task {
+            cities = try await viewModel.fetchCities(for: searchTextField.text ?? "")
+            applySnapshot()
+        }
+        
         tableView.delegate = self
-        tableView.dataSource = self
-        tableView.separatorStyle = .none
         tableView.register(CityCell.self, forCellReuseIdentifier: "CityCell")
         
         view.addSubview(tableView)
@@ -47,40 +73,67 @@ class LocationViewController: UIViewController {
             $0.bottom.greaterThanOrEqualToSuperview()
         }
     }
+
+    // MARK: - Data Source Setup
+    private func setupDataSource() {
+        dataSource = UITableViewDiffableDataSource<Int, CityData>(tableView: tableView) { tableView, indexPath, cityData in
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: "CityCell", for: indexPath) as? CityCell else {
+                return UITableViewCell()
+            }
+            cell.configure(with: "\(cityData.name), \(self.getFullCountryName(from: cityData.country)!)") // креш форс анврап
+            
+            if cityData.name == self.viewModel.selectedCityName {
+                cell.select()
+            } else {
+                cell.deselect()
+            }
+            
+            return cell
+        }
+    }
+    
+    func getFullCountryName(from countryCode: String) -> String? {
+        let locale = Locale(identifier: "en_US")
+        return locale.localizedString(forRegionCode: countryCode.uppercased())
+    }
+
+    // MARK: - Snapshot Handling
+    private func applySnapshot() {
+        snapshot.deleteAllItems()
+        snapshot.appendSections([0])
+        snapshot.appendItems(cities, toSection: 0)
+        dataSource.apply(snapshot, animatingDifferences: false)
+        
+        if viewModel.selectedCityName == viewModel.selectedCityName,
+           let indexPath = cities.firstIndex(where: { $0.name == viewModel.selectedCityName }) {
+            let selectedIndexPath = IndexPath(row: indexPath, section: 0)
+            tableView.selectRow(at: selectedIndexPath, animated: false, scrollPosition: .none)
+            if let cell = tableView.cellForRow(at: selectedIndexPath) as? CityCell {
+                cell.select()
+            }
+        }
+    }
 }
 
 // MARK: - UITextFieldDelegate
 extension LocationViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let currentText = (textField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? ""
-   
+        
         Task {
             cities = try await viewModel.fetchCities(for: currentText)
-            self.tableView.reloadData()
+            applySnapshot()
         }
         return true
     }
 }
 
-// MARK: - UITableViewDataSource
-extension LocationViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return cities.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CityCell", for: indexPath) as! CityCell
-        let cityData = cities[indexPath.row]
-        cell.configure(with: "\(cityData.name), \(cityData.country)")
-        return cell
-    }
-}
-
+// MARK: - UITableViewDelegate
 extension LocationViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+        let selected = cities[indexPath.row]
         
-        if let previousIndexPath = selectedIndexPath, let previousCell = tableView.cellForRow(at: previousIndexPath) as? CityCell {
+        if let previousCell = tableView.cellForRow(at: selectedIndexPath ?? IndexPath(row: 0, section: 0)) as? CityCell {
             previousCell.deselect()
         }
         
@@ -88,20 +141,16 @@ extension LocationViewController: UITableViewDelegate {
             cell.select()
         }
         
+        searchTextField.text = selected.name + ", " + getFullCountryName(from: selected.country)!
+        viewModel.selectedCityName = selected.name
+        viewModel.selectedContryName =  getFullCountryName(from: selected.country)!
         selectedIndexPath = indexPath
-        searchTextField.text = cities[indexPath.row].name
+    
+        viewModel.latitude = selected.lat
+        viewModel.longitude = selected.lon
+        
+        dismiss(animated: true) {
+            self.onCitySelected?()
+        }
     }
 }
-
-//extension LocationViewController {
-//    
-//    func setupTapGesture() {
-//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
-//        view.addGestureRecognizer(tapGesture)
-//    }
-//    
-//    @objc func hideKeyboard() {
-//        view.endEditing(true)
-//    }
-//}
-
