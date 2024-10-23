@@ -6,39 +6,37 @@ class MainViewController: UIViewController {
     // MARK: - Properties
     let viewModel = ViewModel()
     
-    private var buttonInfoView = ButtonInfoView()
+    private var infoButtonView = ButtonInfoView()
     private let backgroundView = BackgroundView()
-    private let rectangleView = RectangleView()
+    private let infoView = InfoView()
     
     private var gradusLabel = UILabel()
     private let weatherTypeLabel = UILabel()
     private let temperatureLabel = UILabel()
-   
+    
     private let locationButton = UIButton()
-    private var buttonInfoButton = UIButton()
+    private var infoButton = UIButton()
     
     private var placeArrowUIImageView = UIImageView()
     private var magnifyingGlassUIImageView = UIImageView()
     private var brickUIImageVIew = UIImageView()
-    
     
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         configureDefaults()
-        updateLocationButton()
     }
     
     // MARK: - UI Setup
     func setupUI() {
-        setupBackroundView()
+        setupBackgroundView()
         setupLocationButton()
         setupWeatherTypeLabel()
         setupTemperatureLabel()
         setupBrickUIImageVIew()
-        setupButtonInfoView()
-        setupRectangleView()
+        setupShowButtonInfoView()
+        setupInfoView()
     }
     
     // MARK: - Default Configuration
@@ -47,9 +45,10 @@ class MainViewController: UIViewController {
     }
     
     // MARK: - Background View Setup
-    func setupBackroundView() {
+    func setupBackgroundView() {
         view.backgroundColor = .systemBackground
         view.addSubview(backgroundView)
+        
         backgroundView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
@@ -81,7 +80,6 @@ class MainViewController: UIViewController {
         gradusLabel.text = "0"
         gradusLabel.textColor = .black
         gradusLabel.font = UIFont(name: "Ubuntu-Bold", size: 40)
-        
         view.addSubview(gradusLabel)
         
         gradusLabel.snp.makeConstraints {
@@ -106,16 +104,13 @@ class MainViewController: UIViewController {
     
     // MARK: - Location Button Setup
     func setupLocationButton() {
-        // MARK: Properties
         locationButton.setTitle("\(viewModel.selectedCityName), \(viewModel.selectedContryName)", for: .normal)
         locationButton.setTitleColor(.black, for: .normal)
         locationButton.addTarget(self, action: #selector(openSheet), for: .touchUpInside)
         locationButton.titleLabel?.font = UIFont(name: "Ubuntu-Bold", size: 17)
         locationButton.titleLabel?.numberOfLines = 0
-        
         view.addSubview(locationButton)
         
-        // MARK: Constraints
         locationButton.snp.makeConstraints {
             $0.centerX.equalToSuperview()
         }
@@ -144,72 +139,65 @@ class MainViewController: UIViewController {
         }
     }
     
-    //MARK: - Info Rectangle View
-    
-    private func setupRectangleView() {
+    // MARK: - Info Rectangle View Setup
+    private func setupInfoView() {
+        view.addSubview(infoView)
         
-        rectangleView.isHidden = false
-        
-        view.addSubview(rectangleView)
-        
-        rectangleView.snp.makeConstraints {
+        infoView.snp.makeConstraints {
             $0.top.equalTo(view.snp.bottom)
             $0.centerX.equalToSuperview()
         }
+        infoView.hideAction = { [weak self] in
+            self?.hideRectangleView()
+        }
     }
-
     
-    // MARK: - Button Info View Setup
-    func setupButtonInfoView() {
-        view.addSubview(buttonInfoView)
-        
-        buttonInfoView.snp.makeConstraints {
+    // MARK: - Setup Show Button Info View
+    func setupShowButtonInfoView() {
+        view.addSubview(infoButtonView)
+        infoButtonView.snp.makeConstraints {
             $0.top.equalTo(locationButton.snp.bottom).offset(27)
             $0.bottom.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(100)
         }
         
-        buttonInfoView.addSubview(buttonInfoButton)
-        
-        buttonInfoButton.snp.makeConstraints {
+        infoButtonView.addSubview(infoButton)
+        infoButton.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        buttonInfoButton.addTarget(self, action: #selector(handleTap), for: .touchUpInside)
+        infoButton.addTarget(self, action: #selector(showInfo), for: .touchUpInside)
     }
     
     // MARK: - Handle Tap
-    @objc private func handleTap() {
-        if rectangleView.frame.origin.y >= view.frame.height {
-            showRectangleView()
-        } else {
-            hideRectangleView()
-        }
+    @objc private func showInfo() {
+        showRectangleView()
     }
-
+    
     // MARK: - Show/Hide Animations
     private func showRectangleView() {
         UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseOut, animations: {
-            self.rectangleView.transform = CGAffineTransform(translationX: 0, y: -600)
+            self.infoView.transform = CGAffineTransform(translationX: 0, y: -600)
             self.setOtherViewsAlpha(0.0)
         }, completion: nil)
     }
-
+    
     private func hideRectangleView() {
         UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseIn, animations: {
-            self.rectangleView.transform = .identity
+            self.infoView.transform = .identity
             self.setOtherViewsAlpha(1.0)
         }, completion: nil)
     }
-
-    // MARK: - Helper method to change alpha of other views
+    
+    // MARK: - Helper Method to Change Alpha of Other Views
     private func setOtherViewsAlpha(_ alpha: CGFloat) {
-        self.weatherTypeLabel.alpha = alpha
-        self.temperatureLabel.alpha = alpha
-        self.locationButton.alpha = alpha
-        self.placeArrowUIImageView.alpha = alpha
-        self.magnifyingGlassUIImageView.alpha = alpha
-        self.brickUIImageVIew.alpha = alpha
-        self.gradusLabel.alpha = alpha
+        weatherTypeLabel.alpha = alpha
+        temperatureLabel.alpha = alpha
+        locationButton.alpha = alpha
+        placeArrowUIImageView.alpha = alpha
+        magnifyingGlassUIImageView.alpha = alpha
+        brickUIImageVIew.alpha = alpha
+        gradusLabel.alpha = alpha
+        infoButtonView.alpha = alpha
     }
     
     // MARK: - Weather Data Fetching
@@ -242,8 +230,7 @@ class MainViewController: UIViewController {
         self.present(locationViewController, animated: true, completion: nil)
     }
     
-    
-    // MARK: - Update Methods
+    // MARK: - Update Location Button
     func updateLocationButton() {
         locationButton.setTitle("\(viewModel.selectedCityName), \(viewModel.selectedContryName)", for: .normal)
         fetchWeatherData()
@@ -263,7 +250,6 @@ class MainViewController: UIViewController {
         if temperature < 0 {
             return .snow
         }
-        
         
         switch condition.lowercased() {
         case "thunderstorm":
@@ -289,3 +275,4 @@ class MainViewController: UIViewController {
         }
     }
 }
+

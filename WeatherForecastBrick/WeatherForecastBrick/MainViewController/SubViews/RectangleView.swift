@@ -6,14 +6,19 @@
 //
 
 import UIKit
+import SnapKit
 
-class RectangleView: UIView {
+class InfoView: UIView {
     
     private var downRectangleView = UIView()
     private var upperRectangleView = UIView()
     
     private let stackView = UIStackView()
+    private let backgroundButtonView = UIView()
     
+    private let hideButton = UIButton()
+    
+    private var hideLabel = UILabel()
     private var infoLabel = UILabel()
     private var rainingLabel = UILabel()
     private var sunnyLabel = UILabel()
@@ -22,7 +27,10 @@ class RectangleView: UIView {
     private var snowLable = UILabel()
     private var windyLabel = UILabel()
     private var noInternetLabel = UILabel()
-
+    
+    var hideAction: (() -> Void)?
+    
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupRectangles()
@@ -91,6 +99,40 @@ class RectangleView: UIView {
             $0.top.equalTo(infoLabel.snp.bottom).offset(23)
             $0.horizontalEdges.equalToSuperview().inset(30)
         }
-
+        
+        backgroundButtonView.layer.cornerCurve = .continuous
+        backgroundButtonView.layer.cornerRadius = 15.5
+        backgroundButtonView.layer.borderWidth = 1
+        backgroundButtonView.layer.borderColor = UIColor.black.cgColor
+        
+        upperRectangleView.addSubview(backgroundButtonView)
+        
+        backgroundButtonView.snp.makeConstraints {
+            $0.top.equalTo(stackView.snp.bottom).offset(40)
+            $0.left.equalToSuperview().offset(81)
+            $0.height.equalTo(31)
+            $0.right.equalToSuperview().offset(-73)
+            $0.bottom.equalToSuperview().offset(-24)
+        }
+        
+        hideLabel.text = "Hide"
+        hideLabel.font = UIFont(name: "Ubuntu-Medium", size: 15)
+        
+        backgroundButtonView.addSubview(hideLabel)
+        hideLabel.snp.makeConstraints {
+            $0.centerX.centerY.equalToSuperview()
+        }
+        
+        backgroundButtonView.addSubview(hideButton)
+        hideButton.addTarget(self, action: #selector(hideButtonTapped), for: .touchUpInside)
+        
+        
+        hideButton.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+    }
+    
+    @objc private func hideButtonTapped() {
+        hideAction?()
     }
 }
