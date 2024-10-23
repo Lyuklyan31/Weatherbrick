@@ -5,14 +5,14 @@ class ViewModel: NSObject {
     let weatherService = WeatherService()
     let geoService = GeoService()
     
-    let apiKey = "797954b9be1e6cfc8ec1a67b9459cbcb"
+    let apiKey = "cc10660b8273174f9fe41ec67ebcbb5d"
     
     var selectedCityName: String
     var selectedContryName: String
     var latitude: Double
     var longitude: Double
     
-    init(selectedCityName: String = "Ivano-Frankivsk", selectedContryName: String = "Ukraine", latitude: Double = 51.5074, longitude: Double = -0.1278) {
+    init(selectedCityName: String = "Ivano-Frankivsk", selectedContryName: String = "Ukraine", latitude: Double = 48.9224763, longitude: Double = 48.9224763) {
         self.selectedCityName = selectedCityName
         self.selectedContryName = selectedContryName
         self.latitude = latitude
