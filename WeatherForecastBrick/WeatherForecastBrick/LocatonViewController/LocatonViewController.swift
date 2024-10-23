@@ -6,8 +6,6 @@ class LocationViewController: UIViewController {
     private let viewModel: ViewModel
     private var cities = [CityData]()
     
-    var onCitySelected: (() -> Void)?
-    
     private let searchTextField = UISearchTextField()
     private let tableView = UITableView()
     private let backgroundView = UIView()
@@ -17,6 +15,7 @@ class LocationViewController: UIViewController {
     private var dataSource: UITableViewDiffableDataSource<Int, CityData>!
     private var snapshot = NSDiffableDataSourceSnapshot<Int, CityData>()
     
+    var onCitySelected: (() -> Void)?
     
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
@@ -80,9 +79,11 @@ class LocationViewController: UIViewController {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "CityCell", for: indexPath) as? CityCell else {
                 return UITableViewCell()
             }
-            cell.configure(with: "\(cityData.name), \(self.getFullCountryName(from: cityData.country)!)") // креш форс анврап
+            cell.configure(with: "\(cityData.name), \(self.getFullCountryName(from: cityData.country) ?? "")")
             
-            if cityData.name == self.viewModel.selectedCityName {
+            if cityData.name == self.viewModel.selectedCityName &&
+                cityData.lat == self.viewModel.latitude &&
+                 cityData.lon == self.viewModel.longitude {
                 cell.select()
             } else {
                 cell.deselect()
@@ -91,27 +92,27 @@ class LocationViewController: UIViewController {
             return cell
         }
     }
-    
-    func getFullCountryName(from countryCode: String) -> String? {
-        let locale = Locale(identifier: "en_US")
-        return locale.localizedString(forRegionCode: countryCode.uppercased())
-    }
 
     // MARK: - Snapshot Handling
     private func applySnapshot() {
         snapshot.deleteAllItems()
         snapshot.appendSections([0])
         snapshot.appendItems(cities, toSection: 0)
-        dataSource.apply(snapshot, animatingDifferences: false)
+        dataSource.apply(snapshot, animatingDifferences: true)
         
-        if viewModel.selectedCityName == viewModel.selectedCityName,
-           let indexPath = cities.firstIndex(where: { $0.name == viewModel.selectedCityName }) {
+        if let indexPath = cities.firstIndex(where: { $0.name == viewModel.selectedCityName }) {
             let selectedIndexPath = IndexPath(row: indexPath, section: 0)
-            tableView.selectRow(at: selectedIndexPath, animated: false, scrollPosition: .none)
+            tableView.selectRow(at: selectedIndexPath, animated: true, scrollPosition: .none)
+            
             if let cell = tableView.cellForRow(at: selectedIndexPath) as? CityCell {
                 cell.select()
             }
         }
+    }
+    
+    func getFullCountryName(from countryCode: String) -> String? {
+        let locale = Locale(identifier: "en_US")
+        return locale.localizedString(forRegionCode: countryCode.uppercased())
     }
 }
 
@@ -140,12 +141,12 @@ extension LocationViewController: UITableViewDelegate {
         if let cell = tableView.cellForRow(at: indexPath) as? CityCell {
             cell.select()
         }
-        
-        searchTextField.text = selected.name + ", " + getFullCountryName(from: selected.country)!
-        viewModel.selectedCityName = selected.name
-        viewModel.selectedContryName =  getFullCountryName(from: selected.country)!
         selectedIndexPath = indexPath
-    
+        
+        searchTextField.text = selected.name + ", " + (getFullCountryName(from: selected.country) ?? "")
+       
+        viewModel.selectedCityName = selected.name
+        viewModel.selectedContryName = (getFullCountryName(from: selected.country) ?? "")
         viewModel.latitude = selected.lat
         viewModel.longitude = selected.lon
         
