@@ -9,6 +9,9 @@ class MainViewController: UIViewController {
     
     private let monitor = NWPathMonitor()
     
+    let refreshControl = UIRefreshControl()
+    private let scrollView = UIScrollView()
+    
     private var infoButtonView = ButtonInfoView()
     private let backgroundView = BackgroundView()
     private let infoView = InfoView()
@@ -33,6 +36,7 @@ class MainViewController: UIViewController {
     
     // MARK: - UI Setup
     func setupUI() {
+        navigationController?.setNavigationBarHidden(true, animated: false)
         setupBackgroundView()
         setupBrickUIImageVIew()
         setupTemperatureLabel()
@@ -61,30 +65,60 @@ class MainViewController: UIViewController {
         brickUIImageVIew.contentMode = .scaleAspectFit
         view.addSubview(brickUIImageVIew)
         
+        backgroundView.addSubview(scrollView)
+        
         brickUIImageVIew.snp.makeConstraints {
             $0.top.lessThanOrEqualToSuperview()
             $0.horizontalEdges.equalToSuperview()
         }
-        
+       
+        scrollView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+            $0.bottom.greaterThanOrEqualToSuperview()
+        }
+       
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
         brickUIImageVIew.isUserInteractionEnabled = true
         brickUIImageVIew.addGestureRecognizer(panGesture)
+        
+        scrollView.refreshControl = refreshControl
+        refreshControl.addTarget(self, action: #selector(didRefreshViewController), for: .valueChanged)
     }
+
     
     // MARK: - Gesture Handling
-    @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        
         let translation = gesture.translation(in: view)
         
-        guard let gestureView = gesture.view else {
-            return
+        let maxYPosition: CGFloat = 200
+
+        switch gesture.state {
+        case .changed:
+            let constrainedY = min(max(0, translation.y), maxYPosition)
+            brickUIImageVIew.transform = CGAffineTransform(translationX: 0, y: constrainedY)
+            
+        case .ended, .cancelled:
+            if translation.y > 50 {
+                refreshControl.beginRefreshing()
+                didRefreshViewController()
+            }
+            UIView.animate(withDuration: 0.3) {
+                self.brickUIImageVIew.transform = .identity
+            }
+            
+        default:
+            break
         }
-        
-        gestureView.center = CGPoint (
-            x: gestureView.center.x + translation.x,
-            y: gestureView.center.y + translation.y
-        )
-        gesture.setTranslation(.zero, in: view)
     }
+    
+    @objc func didRefreshViewController() {
+        Task {
+             fetchWeatherData()
+            refreshControl.endRefreshing()
+        }
+    }
+
     
     // MARK: - Temperature Label Setup
     func setupTemperatureLabel() {
