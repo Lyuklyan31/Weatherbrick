@@ -12,7 +12,7 @@ class ViewModel: NSObject {
     var latitude: Double
     var longitude: Double
     
-    init(selectedCityName: String = "Ivano-Frankivsk", selectedContryName: String = "Ukraine", latitude: Double = 48.9224763, longitude: Double = 48.9224763) {
+    init(selectedCityName: String = "Ivano-Frankivsk", selectedContryName: String = "Ukraine", latitude: Double = 48.9224763, longitude: Double = 48.710334) {
         self.selectedCityName = selectedCityName
         self.selectedContryName = selectedContryName
         self.latitude = latitude
