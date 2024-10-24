@@ -9,7 +9,8 @@ class MainViewController: UIViewController {
     
     private let monitor = NWPathMonitor()
     
-    let refreshControl = UIRefreshControl()
+    private let refreshControl = UIRefreshControl()
+    
     private let scrollView = UIScrollView()
     
     private var infoButtonView = ButtonInfoView()
