@@ -1,10 +1,13 @@
 import UIKit
 import SnapKit
+import Network
 
 class MainViewController: UIViewController {
     
     // MARK: - Properties
     let viewModel = ViewModel()
+    
+    private let monitor = NWPathMonitor()
     
     private var infoButtonView = ButtonInfoView()
     private let backgroundView = BackgroundView()
@@ -31,27 +34,26 @@ class MainViewController: UIViewController {
     // MARK: - UI Setup
     func setupUI() {
         setupBackgroundView()
-        setupLocationButton()
-        setupWeatherTypeLabel()
-        setupTemperatureLabel()
         setupBrickUIImageVIew()
-        setupShowButtonInfoView()
+        setupTemperatureLabel()
+        setupWeatherTypeLabel()
+        setupLocationButton()
+        setupInfoButton()
         setupInfoView()
+        updateUIForNoInternet()
     }
     
     // MARK: - Default Configuration
     private func configureDefaults() {
         fetchWeatherData()
+        setupNetworkMonitor()
     }
     
-    // MARK: - Background View Setup
+    // MARK: - Setup BackgroundView
     func setupBackgroundView() {
         view.backgroundColor = .systemBackground
+        backgroundView.frame = view.bounds
         view.addSubview(backgroundView)
-        
-        backgroundView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
     }
     
     // MARK: - Brick Image View Setup
@@ -60,27 +62,47 @@ class MainViewController: UIViewController {
         view.addSubview(brickUIImageVIew)
         
         brickUIImageVIew.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(-30)
+            $0.top.lessThanOrEqualToSuperview()
             $0.horizontalEdges.equalToSuperview()
         }
+        
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        brickUIImageVIew.isUserInteractionEnabled = true
+        brickUIImageVIew.addGestureRecognizer(panGesture)
+    }
+    
+    // MARK: - Gesture Handling
+    @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        let translation = gesture.translation(in: view)
+        
+        guard let gestureView = gesture.view else {
+            return
+        }
+        
+        gestureView.center = CGPoint (
+            x: gestureView.center.x + translation.x,
+            y: gestureView.center.y + translation.y
+        )
+        gesture.setTranslation(.zero, in: view)
     }
     
     // MARK: - Temperature Label Setup
     func setupTemperatureLabel() {
         temperatureLabel.textColor = .black
         temperatureLabel.font = UIFont(name: "Ubuntu-Regular", size: 83)
-        view.addSubview(temperatureLabel)
+        backgroundView.addSubview(temperatureLabel)
         
         temperatureLabel.snp.makeConstraints {
-            $0.top.greaterThanOrEqualToSuperview()
+            $0.top.lessThanOrEqualTo(brickUIImageVIew.snp.bottom).offset(6)
             $0.left.equalToSuperview().offset(16)
-            $0.bottom.equalTo(weatherTypeLabel.snp.top)
+            $0.height.equalTo(83)
+            $0.right.lessThanOrEqualToSuperview()
         }
         
         gradusLabel.text = "0"
         gradusLabel.textColor = .black
         gradusLabel.font = UIFont(name: "Ubuntu-Bold", size: 40)
-        view.addSubview(gradusLabel)
+        temperatureLabel.addSubview(gradusLabel)
         
         gradusLabel.snp.makeConstraints {
             $0.left.equalTo(temperatureLabel.snp.right).offset(-3)
@@ -93,11 +115,12 @@ class MainViewController: UIViewController {
     func setupWeatherTypeLabel() {
         weatherTypeLabel.textColor = .black
         weatherTypeLabel.font = UIFont(name: "Ubuntu-Light", size: 36)
-        view.addSubview(weatherTypeLabel)
+        backgroundView.addSubview(weatherTypeLabel)
         
         weatherTypeLabel.snp.makeConstraints {
-            $0.left.equalToSuperview().offset(20)
-            $0.bottom.equalTo(locationButton.snp.top).offset(-100)
+            $0.top.equalTo(temperatureLabel.snp.bottom)
+            $0.left.equalToSuperview().offset(16)
+            $0.height.equalTo(58)
             $0.right.lessThanOrEqualToSuperview()
         }
     }
@@ -109,52 +132,39 @@ class MainViewController: UIViewController {
         locationButton.addTarget(self, action: #selector(openSheet), for: .touchUpInside)
         locationButton.titleLabel?.font = UIFont(name: "Ubuntu-Bold", size: 17)
         locationButton.titleLabel?.numberOfLines = 0
-        view.addSubview(locationButton)
+        backgroundView.addSubview(locationButton)
         
         locationButton.snp.makeConstraints {
+            $0.top.equalTo(weatherTypeLabel.snp.bottom).offset(83)
+            $0.height.equalTo(22)
             $0.centerX.equalToSuperview()
         }
         
         // MARK: - Place Arrow Image View
         placeArrowUIImageView = UIImageView(image: UIImage(resource: .placeArrow))
-        view.addSubview(placeArrowUIImageView)
+        backgroundView.addSubview(placeArrowUIImageView)
         
         placeArrowUIImageView.snp.makeConstraints {
             $0.right.equalTo(locationButton.snp.left).offset(-5)
             $0.centerY.equalTo(locationButton)
-            $0.width.height.equalTo(24)
             $0.left.greaterThanOrEqualToSuperview().offset(16)
         }
         
         // MARK: - Magnifying Glass Image View
         magnifyingGlassUIImageView = UIImageView(image: UIImage.iconSearch)
         magnifyingGlassUIImageView.tintColor = .black
-        view.addSubview(magnifyingGlassUIImageView)
+        backgroundView.addSubview(magnifyingGlassUIImageView)
         
         magnifyingGlassUIImageView.snp.makeConstraints {
             $0.left.equalTo(locationButton.snp.right).offset(5)
             $0.centerY.equalTo(locationButton)
-            $0.width.height.equalTo(26)
             $0.right.lessThanOrEqualToSuperview().offset(-16)
         }
     }
     
-    // MARK: - Info Rectangle View Setup
-    private func setupInfoView() {
-        view.addSubview(infoView)
-        
-        infoView.snp.makeConstraints {
-            $0.top.equalTo(view.snp.bottom)
-            $0.centerX.equalToSuperview()
-        }
-        infoView.hideAction = { [weak self] in
-            self?.hideRectangleView()
-        }
-    }
-    
     // MARK: - Setup Show Button Info View
-    func setupShowButtonInfoView() {
-        view.addSubview(infoButtonView)
+    func setupInfoButton() {
+        backgroundView.addSubview(infoButtonView)
         infoButtonView.snp.makeConstraints {
             $0.top.equalTo(locationButton.snp.bottom).offset(27)
             $0.bottom.equalToSuperview()
@@ -166,6 +176,20 @@ class MainViewController: UIViewController {
             $0.edges.equalToSuperview()
         }
         infoButton.addTarget(self, action: #selector(showInfo), for: .touchUpInside)
+    }
+    
+    // MARK: - Info Rectangle View Setup
+    private func setupInfoView() {
+        backgroundView.addSubview(infoView)
+        
+        infoView.snp.makeConstraints {
+            $0.top.equalTo(view.snp.bottom)
+            $0.centerX.equalToSuperview()
+        }
+        
+        infoView.hideAction = { [weak self] in
+            self?.hideRectangleView()
+        }
     }
     
     // MARK: - Handle Tap
@@ -208,7 +232,7 @@ class MainViewController: UIViewController {
                 let tempInCelsius = kelvinToCelsius(weather.main.temp)
                 temperatureLabel.text = "\(tempInCelsius)"
                 let weatherConditions = weather.weather
-                
+               
                 if let firstCondition = weatherConditions.first {
                     let weatherType = getWeatherType(from: firstCondition.main.lowercased(), temperature: tempInCelsius)
                     brickUIImageVIew.image = weatherType.image
@@ -216,6 +240,32 @@ class MainViewController: UIViewController {
                 }
             } catch {
                 print("Error fetching weather: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    // MARK: - Update UI for No Internet
+    func updateUIForNoInternet() {
+        DispatchQueue.main.async {
+            self.weatherTypeLabel.text = "No Internet"
+            self.temperatureLabel.text = "--"
+            self.gradusLabel.isHidden = true
+            self.brickUIImageVIew.image = UIImage(named: "imageNoInternet")
+        }
+    }
+    
+    // MARK: - Setup Network Monitor
+    func setupNetworkMonitor() {
+        monitor.start(queue: DispatchQueue.global(qos: .background))
+        
+        monitor.pathUpdateHandler = { path in
+            if path.status == .unsatisfied {
+                self.updateUIForNoInternet()
+            } else {
+                self.fetchWeatherData()
+                DispatchQueue.main.async {
+                    self.gradusLabel.isHidden = false
+                }
             }
         }
     }
@@ -275,4 +325,3 @@ class MainViewController: UIViewController {
         }
     }
 }
-
