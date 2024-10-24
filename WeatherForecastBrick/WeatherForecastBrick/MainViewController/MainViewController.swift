@@ -106,7 +106,7 @@ class MainViewController: UIViewController {
             UIView.animate(withDuration: 0.3) {
                 self.brickUIImageVIew.transform = .identity
             }
-            
+
         default:
             break
         }
@@ -170,7 +170,6 @@ class MainViewController: UIViewController {
         
         locationButton.snp.makeConstraints {
             $0.top.equalTo(weatherTypeLabel.snp.bottom).offset(83)
-            $0.height.equalTo(22)
             $0.centerX.equalToSuperview()
         }
         
@@ -181,7 +180,6 @@ class MainViewController: UIViewController {
         placeArrowUIImageView.snp.makeConstraints {
             $0.right.equalTo(locationButton.snp.left).offset(-5)
             $0.centerY.equalTo(locationButton)
-            $0.left.greaterThanOrEqualToSuperview().offset(16)
         }
         
         // MARK: - Magnifying Glass Image View
@@ -192,7 +190,6 @@ class MainViewController: UIViewController {
         magnifyingGlassUIImageView.snp.makeConstraints {
             $0.left.equalTo(locationButton.snp.right).offset(5)
             $0.centerY.equalTo(locationButton)
-            $0.right.lessThanOrEqualToSuperview().offset(-16)
         }
     }
     
