@@ -1,17 +1,18 @@
 import Foundation
 import UIKit
 
-enum WeatherType: String {
-    case thunderstorm
-    case drizzle
-    case rain
-    case snow
-    case clear
-    case clouds
-    case mist
-    case fog
-    case squall
-    case hot
+// MARK: - WeatherTypes
+enum WeatherTypes: String, Codable {
+    case thunderstorm = "Thunderstorm"
+    case drizzle = "Drizzle"
+    case rain = "Rain"
+    case snow = "Snow"
+    case clear = "Clear"
+    case clouds = "Clouds"
+    case mist = "Mist"
+    case fog = "Fog"
+    case squall = "Squall"
+    case hot = "Hot"
     
     var image: UIImage {
         switch self {
@@ -19,10 +20,13 @@ enum WeatherType: String {
                 .imageStoneWet
         case .snow:
                 .imageStoneSnow
-        case .clear, .clouds, .mist, .fog, .squall:
+        case .clear, .clouds, .mist, .squall:
                 .imageStoneNormal
+        case .fog:
+                .imageStoneNormal.applyBlur(radius: 5) ?? .imageStoneNormal
         case .hot:
                 .imageStoneCracks
         }
     }
 }
+

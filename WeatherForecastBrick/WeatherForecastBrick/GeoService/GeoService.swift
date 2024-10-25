@@ -24,7 +24,7 @@ class GeoService {
                 print("HTTP Error: \(String(describing: (response as? HTTPURLResponse)?.statusCode))")
                 throw URLError(.badServerResponse)
             }
-            
+         
             let decodedResponse = try JSONDecoder().decode([CityData].self, from: data)
             return decodedResponse
             

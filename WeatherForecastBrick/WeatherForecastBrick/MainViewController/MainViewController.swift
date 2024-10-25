@@ -71,12 +71,12 @@ class MainViewController: UIViewController {
             $0.top.lessThanOrEqualToSuperview()
             $0.horizontalEdges.equalToSuperview()
         }
-       
+        
         scrollView.snp.makeConstraints {
             $0.edges.equalToSuperview()
             $0.bottom.greaterThanOrEqualToSuperview()
         }
-       
+        
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
         brickUIImageVIew.isUserInteractionEnabled = true
         brickUIImageVIew.addGestureRecognizer(panGesture)
@@ -84,7 +84,7 @@ class MainViewController: UIViewController {
         scrollView.refreshControl = refreshControl
         refreshControl.addTarget(self, action: #selector(didRefreshViewController), for: .valueChanged)
     }
-
+    
     
     // MARK: - Gesture Handling
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
@@ -92,7 +92,7 @@ class MainViewController: UIViewController {
         let translation = gesture.translation(in: view)
         
         let maxYPosition: CGFloat = 200
-
+        
         switch gesture.state {
         case .changed:
             let constrainedY = min(max(0, translation.y), maxYPosition)
@@ -106,7 +106,7 @@ class MainViewController: UIViewController {
             UIView.animate(withDuration: 0.3) {
                 self.brickUIImageVIew.transform = .identity
             }
-
+            
         default:
             break
         }
@@ -262,12 +262,13 @@ class MainViewController: UIViewController {
                 let weatherData = try await viewModel.getWeather()
                 let tempInCelsius = weatherData.main.temp.kelvinToCelsius()
                 temperatureLabel.text = "\(tempInCelsius)"
+
                 let weatherConditions = weatherData.weather
-               
+                
                 if let firstCondition = weatherConditions.first {
-                    let weatherType = getWeatherType(from: firstCondition.main.lowercased(), temperature: tempInCelsius)
+                    let weatherType = getWeatherType(from: firstCondition.main.rawValue, temperature: tempInCelsius)
                     brickUIImageVIew.image = weatherType.image
-                    weatherTypeLabel.text = firstCondition.main
+                    weatherTypeLabel.text =  weatherType.rawValue
                 }
             } catch {
                 print("Error fetching weather: \(error.localizedDescription)")
@@ -318,32 +319,11 @@ class MainViewController: UIViewController {
     }
     
     // MARK: - Weather Type Handling
-    func getWeatherType(from condition: String, temperature: Int) -> WeatherType {
+    func getWeatherType(from condition: String, temperature: Int) -> WeatherTypes {
         if temperature > 30 {
             return .hot
         }
-
-        switch condition.lowercased() {
-        case "thunderstorm":
-            return .thunderstorm
-        case "drizzle":
-            return .drizzle
-        case "rain":
-            return .rain
-        case "snow":
-            return .snow
-        case "clear":
-            return .clear
-        case "clouds":
-            return .clouds
-        case "mist":
-            return .mist
-        case "fog":
-            return .fog
-        case "squall":
-            return .squall
-        default:
-            return .clear
-        }
+        
+        return WeatherTypes(rawValue: condition.capitalized) ?? .clear
     }
 }
