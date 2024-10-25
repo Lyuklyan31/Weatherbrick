@@ -7,11 +7,11 @@ class MainViewController: UIViewController {
     // MARK: - Properties
     let viewModel = WeatherLocationViewModel()
     
-    private let monitor = NWPathMonitor()
-    
     private var infoButtonView = ButtonInfoView()
     private let backgroundView = BackgroundView()
     private let infoView = InfoView()
+    
+    private let monitor = NWPathMonitor()
     
     private var gradusLabel = UILabel()
     private let weatherTypeLabel = UILabel()
@@ -68,13 +68,12 @@ class MainViewController: UIViewController {
         backgroundView.addSubview(scrollView)
         
         brickUIImageVIew.snp.makeConstraints {
-            $0.top.lessThanOrEqualToSuperview()
+            $0.top.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
         }
         
         scrollView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-            $0.bottom.greaterThanOrEqualToSuperview()
+            $0.edges.equalTo(brickUIImageVIew.snp.edges)
         }
         
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
@@ -136,12 +135,11 @@ class MainViewController: UIViewController {
         gradusLabel.text = "0"
         gradusLabel.textColor = .black
         gradusLabel.font = UIFont(name: "Ubuntu-Bold", size: 40)
-        temperatureLabel.addSubview(gradusLabel)
+        backgroundView.addSubview(gradusLabel)
         
         gradusLabel.snp.makeConstraints {
+            $0.top.equalTo(brickUIImageVIew.snp.bottom)
             $0.leading.equalTo(temperatureLabel.snp.trailing).offset(-3)
-            $0.centerY.equalTo(temperatureLabel).offset(-31.5)
-            $0.width.greaterThanOrEqualTo(20)
         }
     }
     
@@ -169,8 +167,9 @@ class MainViewController: UIViewController {
         backgroundView.addSubview(locationButton)
         
         locationButton.snp.makeConstraints {
-            $0.top.equalTo(weatherTypeLabel.snp.bottom).offset(83)
+            $0.top.equalTo(weatherTypeLabel.snp.bottom).offset(120)
             $0.centerX.equalToSuperview()
+            $0.height.equalTo(22)
         }
         
         // MARK: - Place Arrow Image View
@@ -197,7 +196,7 @@ class MainViewController: UIViewController {
     func setupInfoButton() {
         backgroundView.addSubview(infoButtonView)
         infoButtonView.snp.makeConstraints {
-            $0.top.equalTo(locationButton.snp.bottom).offset(27)
+            $0.top.greaterThanOrEqualTo(locationButton.snp.bottom).offset(30)
             $0.bottom.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(100)
         }
