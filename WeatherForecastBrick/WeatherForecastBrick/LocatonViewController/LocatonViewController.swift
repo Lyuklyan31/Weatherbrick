@@ -35,9 +35,8 @@ class LocationViewController: UIViewController {
     
     // MARK: - Configure Defaults
     private func configureDefaults() {
-        fetchCities()
-        applySnapshot()
         setupDataSource()
+        fetchCities()
     }
     
     // MARK: - UI Setup
@@ -109,6 +108,7 @@ class LocationViewController: UIViewController {
     private func fetchCities() {
         Task {
             viewModel.cities = try await viewModel.fetchCities(for: searchTextField.text ?? "")
+            applySnapshot()
         }
     }
 }
