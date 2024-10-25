@@ -1,6 +1,5 @@
 import Foundation
 
-
 // MARK: - CityData
 struct CityData: Decodable, Hashable {
     let name: String
