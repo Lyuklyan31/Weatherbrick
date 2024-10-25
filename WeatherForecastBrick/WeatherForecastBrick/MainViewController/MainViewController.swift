@@ -5,13 +5,9 @@ import Network
 class MainViewController: UIViewController {
     
     // MARK: - Properties
-    let viewModel = ViewModel()
+    let viewModel = WeatherLocationViewModel()
     
     private let monitor = NWPathMonitor()
-    
-    private let refreshControl = UIRefreshControl()
-    
-    private let scrollView = UIScrollView()
     
     private var infoButtonView = ButtonInfoView()
     private let backgroundView = BackgroundView()
@@ -20,6 +16,9 @@ class MainViewController: UIViewController {
     private var gradusLabel = UILabel()
     private let weatherTypeLabel = UILabel()
     private let temperatureLabel = UILabel()
+    
+    private let refreshControl = UIRefreshControl()
+    private let scrollView = UIScrollView()
     
     private let locationButton = UIButton()
     private var infoButton = UIButton()
@@ -37,7 +36,6 @@ class MainViewController: UIViewController {
     
     // MARK: - UI Setup
     func setupUI() {
-        navigationController?.setNavigationBarHidden(true, animated: false)
         setupBackgroundView()
         setupBrickUIImageVIew()
         setupTemperatureLabel()
@@ -56,6 +54,7 @@ class MainViewController: UIViewController {
     
     // MARK: - Setup BackgroundView
     func setupBackgroundView() {
+        navigationController?.setNavigationBarHidden(true, animated: false)
         view.backgroundColor = .systemBackground
         backgroundView.frame = view.bounds
         view.addSubview(backgroundView)
@@ -115,11 +114,11 @@ class MainViewController: UIViewController {
     
     @objc func didRefreshViewController() {
         Task {
-             fetchWeatherData()
+            fetchWeatherData()
+            setupNetworkMonitor()
             refreshControl.endRefreshing()
         }
     }
-
     
     // MARK: - Temperature Label Setup
     func setupTemperatureLabel() {
@@ -129,9 +128,9 @@ class MainViewController: UIViewController {
         
         temperatureLabel.snp.makeConstraints {
             $0.top.lessThanOrEqualTo(brickUIImageVIew.snp.bottom).offset(6)
-            $0.left.equalToSuperview().offset(16)
+            $0.leading.equalToSuperview().offset(16)
             $0.height.equalTo(83)
-            $0.right.lessThanOrEqualToSuperview()
+            $0.trailing.lessThanOrEqualToSuperview()
         }
         
         gradusLabel.text = "0"
@@ -140,7 +139,7 @@ class MainViewController: UIViewController {
         temperatureLabel.addSubview(gradusLabel)
         
         gradusLabel.snp.makeConstraints {
-            $0.left.equalTo(temperatureLabel.snp.right).offset(-3)
+            $0.leading.equalTo(temperatureLabel.snp.trailing).offset(-3)
             $0.centerY.equalTo(temperatureLabel).offset(-31.5)
             $0.width.greaterThanOrEqualTo(20)
         }
@@ -154,15 +153,15 @@ class MainViewController: UIViewController {
         
         weatherTypeLabel.snp.makeConstraints {
             $0.top.equalTo(temperatureLabel.snp.bottom)
-            $0.left.equalToSuperview().offset(16)
+            $0.leading.equalToSuperview().offset(16)
             $0.height.equalTo(58)
-            $0.right.lessThanOrEqualToSuperview()
+            $0.trailing.lessThanOrEqualToSuperview()
         }
     }
     
     // MARK: - Location Button Setup
     func setupLocationButton() {
-        locationButton.setTitle("\(viewModel.selectedCityName), \(viewModel.selectedContryName)", for: .normal)
+        locationButton.setTitle("\(viewModel.selectedCityName), \(viewModel.selectedCountryName)", for: .normal)
         locationButton.setTitleColor(.black, for: .normal)
         locationButton.addTarget(self, action: #selector(openSheet), for: .touchUpInside)
         locationButton.titleLabel?.font = UIFont(name: "Ubuntu-Bold", size: 17)
@@ -179,7 +178,7 @@ class MainViewController: UIViewController {
         backgroundView.addSubview(placeArrowUIImageView)
         
         placeArrowUIImageView.snp.makeConstraints {
-            $0.right.equalTo(locationButton.snp.left).offset(-5)
+            $0.trailing.equalTo(locationButton.snp.leading).offset(-5)
             $0.centerY.equalTo(locationButton)
         }
         
@@ -189,7 +188,7 @@ class MainViewController: UIViewController {
         backgroundView.addSubview(magnifyingGlassUIImageView)
         
         magnifyingGlassUIImageView.snp.makeConstraints {
-            $0.left.equalTo(locationButton.snp.right).offset(5)
+            $0.leading.equalTo(locationButton.snp.trailing).offset(5)
             $0.centerY.equalTo(locationButton)
         }
     }
@@ -260,10 +259,10 @@ class MainViewController: UIViewController {
     func fetchWeatherData() {
         Task {
             do {
-                let weather = try await viewModel.getWeather()
-                let tempInCelsius = kelvinToCelsius(weather.main.temp)
+                let weatherData = try await viewModel.getWeather()
+                let tempInCelsius = weatherData.main.temp.kelvinToCelsius()
                 temperatureLabel.text = "\(tempInCelsius)"
-                let weatherConditions = weather.weather
+                let weatherConditions = weatherData.weather
                
                 if let firstCondition = weatherConditions.first {
                     let weatherType = getWeatherType(from: firstCondition.main.lowercased(), temperature: tempInCelsius)
@@ -282,7 +281,7 @@ class MainViewController: UIViewController {
             self.weatherTypeLabel.text = "No Internet"
             self.temperatureLabel.text = "--"
             self.gradusLabel.isHidden = true
-            self.brickUIImageVIew.image = UIImage(named: "imageNoInternet")
+            self.brickUIImageVIew.image = UIImage(resource: .imageNoInternet)
         }
     }
     
@@ -314,13 +313,8 @@ class MainViewController: UIViewController {
     
     // MARK: - Update Location Button
     func updateLocationButton() {
-        locationButton.setTitle("\(viewModel.selectedCityName), \(viewModel.selectedContryName)", for: .normal)
+        locationButton.setTitle("\(viewModel.selectedCityName), \(viewModel.selectedCountryName)", for: .normal)
         fetchWeatherData()
-    }
-    
-    // MARK: - Temperature Conversion
-    func kelvinToCelsius(_ kelvin: Double) -> Int {
-        return Int(kelvin - 273.15)
     }
     
     // MARK: - Weather Type Handling
@@ -328,11 +322,7 @@ class MainViewController: UIViewController {
         if temperature > 30 {
             return .hot
         }
-        
-        if temperature < 0 {
-            return .snow
-        }
-        
+
         switch condition.lowercased() {
         case "thunderstorm":
             return .thunderstorm
