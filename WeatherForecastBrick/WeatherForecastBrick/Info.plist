@@ -26,7 +26,9 @@
 			</array>
 		</dict>
 	</dict>
-	<key>plist version="1.0"</key>
+	<key>WeatherAPIKey</key>
+	<string>cc10660b8273174f9fe41ec67ebcbb5d</string>
+	<key>plist version=&quot;1.0&quot;</key>
 	<dict>
 		<key>App Transport Security Settings</key>
 		<dict>
