@@ -3,30 +3,37 @@ import UIKit
 
 class ButtonInfoView: UIView {
 
-    let rectangleView = UIView()
-    let gradientLayer = CAGradientLayer()
-    let infolabel = UILabel()
+    // MARK: - UI Elements
+    private let rectangleView = UIView()
+    private let gradientLayer = CAGradientLayer()
+    private let infoLabel = UILabel()
 
+    // MARK: - Initializers
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupRectangle()
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        gradientLayer.frame = rectangleView.bounds
-        let maskLayer = CAShapeLayer()
-        maskLayer.path = UIBezierPath(roundedRect: rectangleView.bounds,
-                                      byRoundingCorners: [.topLeft, .topRight],
-                                      cornerRadii: CGSize(width: 10, height: 10)).cgPath
-        gradientLayer.mask = maskLayer
-    }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Layout
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        gradientLayer.frame = rectangleView.bounds
+        
+        let maskLayer = CAShapeLayer()
+        maskLayer.path = UIBezierPath(
+            roundedRect: rectangleView.bounds,
+            byRoundingCorners: [.topLeft, .topRight],
+            cornerRadii: CGSize(width: 10, height: 10)
+        ).cgPath
+        gradientLayer.mask = maskLayer
+    }
     
-    func setupRectangle() {
+    // MARK: - Setup Methods
+    private func setupRectangle() {
         gradientLayer.colors = [
             UIColor.orangeTop.cgColor,
             UIColor.orangeBottom.cgColor
@@ -36,7 +43,6 @@ class ButtonInfoView: UIView {
         rectangleView.layer.cornerRadius = 10
         rectangleView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         rectangleView.clipsToBounds = true
-
         addSubview(rectangleView)
         
         rectangleView.snp.makeConstraints {
@@ -44,13 +50,12 @@ class ButtonInfoView: UIView {
             $0.edges.equalToSuperview()
         }
         
-        infolabel.text = "INFO"
-        infolabel.font = UIFont(name: "Ubuntu-Bold", size: 18)
-        infolabel.textColor = .black
+        infoLabel.text = "INFO"
+        infoLabel.font = UIFont(name: "Ubuntu-Bold", size: 18)
+        infoLabel.textColor = .black
+        rectangleView.addSubview(infoLabel)
 
-        rectangleView.addSubview(infolabel)
-        
-        infolabel.snp.makeConstraints {
+        infoLabel.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
     }
