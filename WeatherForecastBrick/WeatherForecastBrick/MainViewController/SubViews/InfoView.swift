@@ -55,7 +55,7 @@ class InfoView: UIView {
         downRectangleView.addSubview(upperRectangleView)
         
         upperRectangleView.snp.makeConstraints {
-            $0.left.equalToSuperview()
+            $0.leading.equalToSuperview()
             $0.verticalEdges.equalToSuperview()
             $0.width.equalTo(269)
             $0.height.equalTo(372)
@@ -69,8 +69,8 @@ class InfoView: UIView {
         infoLabel.snp.makeConstraints {
             $0.height.equalTo(22)
             $0.top.equalToSuperview().offset(24)
-            $0.left.equalToSuperview().offset(116)
-            $0.right.equalToSuperview().offset(-109)
+            $0.leading.equalToSuperview().offset(116)
+            $0.trailing.equalToSuperview().offset(-109)
         }
         
         // MARK: - Setup Stack View and Weather Labels
@@ -115,9 +115,9 @@ class InfoView: UIView {
         
         backgroundButtonView.snp.makeConstraints {
             $0.top.greaterThanOrEqualTo(stackView.snp.bottom)
-            $0.left.equalToSuperview().offset(81)
+            $0.leading.equalToSuperview().offset(81)
             $0.height.equalTo(31)
-            $0.right.equalToSuperview().offset(-73)
+            $0.trailing.equalToSuperview().offset(-73)
             $0.bottom.equalToSuperview().offset(-24)
         }
         
