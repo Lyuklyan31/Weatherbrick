@@ -5,21 +5,24 @@ class InfoView: UIView {
     
     private var downRectangleView = UIView()
     private var upperRectangleView = UIView()
-    
-    private let stackView = UIStackView()
     private let backgroundButtonView = UIView()
     
+    private let stackView = UIStackView()
+   
     private let hideButton = UIButton()
     
     private var hideLabel = UILabel()
     private var infoLabel = UILabel()
-    private var rainingLabel = UILabel()
-    private var sunnyLabel = UILabel()
-    private var fogLabel = UILabel()
-    private var veryHotLabel = UILabel()
-    private var snowLabel = UILabel()
-    private var windyLabel = UILabel()
-    private var noInternetLabel = UILabel()
+    
+    private let weatherText: [String] = [
+        "Brick is wet - raining",
+        "Brick is dry - sunny",
+        "Brick is hard to see - fog",
+        "Brick with cracks - very hot",
+        "Brick with snow - snow",
+        "Brick is swinging - windy",
+        "Brick is gone - No Internet"
+    ]
     
     var hideAction: (() -> Void)?
     
@@ -73,32 +76,17 @@ class InfoView: UIView {
             $0.trailing.equalToSuperview().offset(-109)
         }
         
-        // MARK: - Setup Stack View and Weather Labels
+        // MARK: - Setup Stack View for Weather Labels
         upperRectangleView.addSubview(stackView)
         stackView.axis = .vertical
         stackView.spacing = 10
         
-        rainingLabel.text = "Brick is wet - raining"
-        sunnyLabel.text = "Brick is dry - sunny"
-        fogLabel.text = "Brick is hard to see - fog"
-        veryHotLabel.text = "Brick with cracks - very hot"
-        snowLabel.text = "Brick with snow - snow"
-        windyLabel.text = "Brick is swinging - windy"
-        noInternetLabel.text = "Brick is gone - No Internet"
-        
-        let labels = [
-            rainingLabel,
-            sunnyLabel,
-            fogLabel,
-            veryHotLabel,
-            snowLabel,
-            windyLabel,
-            noInternetLabel
-        ]
-        
-        labels.forEach {
-            $0.font = UIFont(name: "Ubuntu-Regular", size: 15)
-            stackView.addArrangedSubview($0)
+        for text in weatherText {
+            let label = UILabel()
+            label.text = text
+            label.font = UIFont(name: "Ubuntu-Regular", size: 15)
+            label.numberOfLines = 1
+            stackView.addArrangedSubview(label)
         }
         
         stackView.snp.makeConstraints {
@@ -114,7 +102,7 @@ class InfoView: UIView {
         upperRectangleView.addSubview(backgroundButtonView)
         
         backgroundButtonView.snp.makeConstraints {
-            $0.top.greaterThanOrEqualTo(stackView.snp.bottom)
+            $0.top.greaterThanOrEqualTo(stackView.snp.bottom).offset(10)
             $0.leading.equalToSuperview().offset(81)
             $0.height.equalTo(31)
             $0.trailing.equalToSuperview().offset(-73)
