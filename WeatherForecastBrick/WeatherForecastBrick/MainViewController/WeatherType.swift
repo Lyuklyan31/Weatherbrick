@@ -15,23 +15,11 @@ enum WeatherType: String {
     
     var image: UIImage {
         switch self {
-        case .thunderstorm:
-                .imageStoneWet
-        case .drizzle:
-                .imageStoneWet
-        case .rain:
+        case .rain, .drizzle, .thunderstorm:
                 .imageStoneWet
         case .snow:
                 .imageStoneSnow
-        case .clear:
-                .imageStoneNormal
-        case .clouds:
-                .imageStoneNormal
-        case .mist:
-                .imageStoneNormal
-        case .fog:
-                .imageStoneNormal
-        case .squall:
+        case .clear, .clouds, .mist, .fog, .squall:
                 .imageStoneNormal
         case .hot:
                 .imageStoneCracks
