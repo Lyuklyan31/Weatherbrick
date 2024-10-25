@@ -1,40 +1,42 @@
 import SnapKit
 import UIKit
 
+//MARK: - CityCell
 class CityCell: UITableViewCell {
     private let cellLabel = UILabel()
     private let backgroundCell = UIView()
-    private let chekmark = UIImageView()
+    private let cheсkmark = UIImageView()
 
     // MARK: - Initializers
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupSubview()
+        setupSubviews()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func setupSubview() {
+    // MARK: - Setup Subviews
+    func setupSubviews() {
         cellLabel.font = .systemFont(ofSize: 25, weight: .medium)
         cellLabel.textColor = .black
         cellLabel.numberOfLines = 0
         addSubview(cellLabel)
 
         cellLabel.snp.makeConstraints {
-            $0.left.equalToSuperview().offset(16)
-            $0.right.lessThanOrEqualToSuperview()
+            $0.leading.equalToSuperview().offset(16)
+            $0.trailing.lessThanOrEqualToSuperview()
             $0.verticalEdges.equalToSuperview().inset(8)
         }
 
-        chekmark.image = UIImage(systemName: "circle")
-        chekmark.tintColor = .black
-        chekmark.contentMode = .scaleAspectFit
-        addSubview(chekmark)
+        cheсkmark.image = UIImage(systemName: "circle")
+        cheсkmark.tintColor = .black
+        cheсkmark.contentMode = .scaleAspectFit
+        addSubview(cheсkmark)
 
-        chekmark.snp.makeConstraints {
-            $0.right.equalToSuperview().offset(-16)
+        cheсkmark.snp.makeConstraints {
+            $0.trailing.equalToSuperview().offset(-16)
             $0.verticalEdges.equalToSuperview().inset(16)
         }
     }
@@ -44,14 +46,14 @@ class CityCell: UITableViewCell {
         cellLabel.text = cityName
     }
     
-    func select() {
-        chekmark.image = UIImage(systemName: "checkmark.circle.fill")
-        chekmark.tintColor = .systemGreen
+    func applyChecked() {
+        cheсkmark.image = UIImage(systemName: "checkmark.circle.fill")
+        cheсkmark.tintColor = .systemGreen
     }
 
-    func deselect() {
-        chekmark.image = UIImage(systemName: "circle")
-        chekmark.tintColor = .black
+    func uncheckedLook() {
+        cheсkmark.image = UIImage(systemName: "circle")
+        cheсkmark.tintColor = .black
     }
 }
 
