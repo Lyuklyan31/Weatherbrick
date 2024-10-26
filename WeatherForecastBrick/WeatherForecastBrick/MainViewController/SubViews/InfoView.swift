@@ -6,13 +6,13 @@ class InfoView: UIView {
     private var downRectangleView = UIView()
     private var upperRectangleView = UIView()
     private let backgroundButtonView = UIView()
-    
-    private let stackView = UIStackView()
    
     private let hideButton = UIButton()
     
     private var hideLabel = UILabel()
     private var infoLabel = UILabel()
+
+    private var explainStatesLabel = UILabel()
     
     private let weatherText: [String] = [
         "Brick is wet - raining",
@@ -77,19 +77,26 @@ class InfoView: UIView {
         }
         
         // MARK: - Setup Stack View for Weather Labels
-        upperRectangleView.addSubview(stackView)
-        stackView.axis = .vertical
-        stackView.spacing = 10
         
-        for text in weatherText {
-            let label = UILabel()
-            label.text = text
-            label.font = UIFont(name: "Ubuntu-Regular", size: 15)
-            label.numberOfLines = 1
-            stackView.addArrangedSubview(label)
-        }
+        explainStatesLabel.font = UIFont(name: "Ubuntu-Regular", size: 15)
+        explainStatesLabel.numberOfLines = 0
+        explainStatesLabel.text = """
+            Brick is wet - raining
         
-        stackView.snp.makeConstraints {
+            Brick is dry - sunny
+        
+            Brick is hard to see - fog
+        
+            Brick with cracks - very hot
+        
+            Brick with snow - snow
+        
+            Brick is swinging - windy
+        
+            Brick is gone - No Internet
+        """
+        addSubview(explainStatesLabel)
+        explainStatesLabel.snp.makeConstraints {
             $0.top.equalTo(infoLabel.snp.bottom).offset(23)
             $0.horizontalEdges.equalToSuperview().inset(30)
         }
@@ -102,7 +109,7 @@ class InfoView: UIView {
         upperRectangleView.addSubview(backgroundButtonView)
         
         backgroundButtonView.snp.makeConstraints {
-            $0.top.greaterThanOrEqualTo(stackView.snp.bottom).offset(10)
+            $0.top.greaterThanOrEqualTo(explainStatesLabel.snp.bottom).offset(10)
             $0.leading.equalToSuperview().offset(81)
             $0.height.equalTo(31)
             $0.trailing.equalToSuperview().offset(-73)
