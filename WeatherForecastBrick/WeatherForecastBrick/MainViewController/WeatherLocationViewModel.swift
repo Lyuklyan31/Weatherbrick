@@ -15,7 +15,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     private(set) var selectedCountryName: String
     private(set) var latitude: Double
     private(set) var longitude: Double
-    
+    var id: UUID
     private var fetchTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
     private let searchTextSubject = PassthroughSubject<String, Never>()
@@ -25,12 +25,14 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
         selectedCityName: String = "Ivano-Frankivsk",
         selectedCountryName: String = "Ukraine",
         latitude: Double = 48.9224763,
-        longitude: Double = 48.710334
+        longitude: Double = 48.710334,
+        id: UUID? = nil
     ) {
         self.selectedCityName = selectedCityName
         self.selectedCountryName = selectedCountryName
         self.latitude = latitude
         self.longitude = longitude
+        self.id = id ?? UUID()
         super.init()
         setupDebounceForSearchInput()
     }
@@ -73,13 +75,20 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     private func fetchCities(for searchQuery: String) async throws {
         fetchTask?.cancel()
         
+        guard !searchQuery.isEmpty else {
+               self.cities = []
+               return
+           }
+        
         fetchTask = Task {
             do {
                 let fetchedCities = try await geoService.fetchCities(
                     for: searchQuery,
                     apiKey: getAPIKey()
                 )
-                self.cities = fetchedCities
+                DispatchQueue.main.async {
+                    self.cities = fetchedCities
+                }
             } catch {
             }
         }

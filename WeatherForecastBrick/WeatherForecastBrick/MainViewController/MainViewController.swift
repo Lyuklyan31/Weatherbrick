@@ -81,15 +81,13 @@ class MainViewController: UIViewController {
         brickUIImageVIew.addGestureRecognizer(panGesture)
         
         scrollView.refreshControl = refreshControl
-        refreshControl.addTarget(self, action: #selector(didRefreshViewController), for: .valueChanged)
+        refreshControl.addTarget(self, action: #selector(refreshViewController), for: .valueChanged)
     }
     
     
     // MARK: - Gesture Handling
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
-        
         let translation = gesture.translation(in: view)
-        
         let maxYPosition: CGFloat = 200
         
         switch gesture.state {
@@ -100,7 +98,7 @@ class MainViewController: UIViewController {
         case .ended, .cancelled:
             if translation.y > 50 {
                 refreshControl.beginRefreshing()
-                didRefreshViewController()
+                refreshViewController()
             }
             UIView.animate(withDuration: 0.3) {
                 self.brickUIImageVIew.transform = .identity
@@ -111,7 +109,7 @@ class MainViewController: UIViewController {
         }
     }
     
-    @objc func didRefreshViewController() {
+    @objc func refreshViewController() {
         Task {
             fetchWeatherData()
             setupNetworkMonitor()
@@ -231,19 +229,19 @@ class MainViewController: UIViewController {
     private func showRectangleView() {
         UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseOut, animations: {
             self.infoView.transform = CGAffineTransform(translationX: 0, y: -600)
-            self.setOtherViewsAlpha(0.0)
+            self.setAdditionalViewsAlpha(0.0)
         }, completion: nil)
     }
     
     private func hideRectangleView() {
         UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseIn, animations: {
             self.infoView.transform = .identity
-            self.setOtherViewsAlpha(1.0)
+            self.setAdditionalViewsAlpha(1.0)
         }, completion: nil)
     }
     
     // MARK: - Helper Method to Change Alpha of Other Views
-    private func setOtherViewsAlpha(_ alpha: CGFloat) {
+    private func setAdditionalViewsAlpha(_ alpha: CGFloat) {
         weatherTypeLabel.alpha = alpha
         temperatureLabel.alpha = alpha
         locationButton.alpha = alpha
@@ -304,8 +302,9 @@ class MainViewController: UIViewController {
         let locationViewController = LocationViewController(viewModel: self.viewModel)
         locationViewController.modalPresentationStyle = .pageSheet
         locationViewController.onCitySelected = { [weak self] in
-            self?.updateLocationButton()
-        }
+               self?.updateLocationButton()
+               self?.dismiss(animated: true, completion: nil)
+           }
         self.present(locationViewController, animated: true, completion: nil)
     }
     

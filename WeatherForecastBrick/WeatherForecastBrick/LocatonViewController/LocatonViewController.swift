@@ -77,7 +77,9 @@ class LocationViewController: UIViewController {
             
             if cityData.name == self.viewModel.selectedCityName &&
                 cityData.lat == self.viewModel.latitude &&
-                cityData.lon == self.viewModel.longitude
+                cityData.lon == self.viewModel.longitude &&
+                cityData.getFullCountryName() == self.viewModel.selectedCountryName &&
+                cityData.id == self.viewModel.id
                 {
                 cell.applyCheckedLook()
             } else {
@@ -137,8 +139,6 @@ extension LocationViewController: UITableViewDelegate {
         searchTextField.text = selected.name + ", " + selected.getFullCountryName()
         applySnapshot()
         
-        dismiss(animated: true) {
-            self.onCitySelected?()
-        }
+        onCitySelected?()
     }
 }
