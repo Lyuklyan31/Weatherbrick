@@ -269,7 +269,6 @@ class MainViewController: UIViewController {
                     brickUIImageVIew.image = weatherType.image
                     weatherTypeLabel.text =  weatherType.rawValue
                 }
-            } catch {
             }
         }
     }
