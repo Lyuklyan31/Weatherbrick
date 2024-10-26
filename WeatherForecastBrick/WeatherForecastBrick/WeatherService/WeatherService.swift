@@ -13,7 +13,6 @@ class WeatherService {
         
         // Validating the URL
         guard let url = URL(string: urlString) else {
-            print("Invalid URL")
             throw URLError(.badURL)
         }
         
@@ -37,7 +36,6 @@ class WeatherServiceCompletion {
         let urlString = "https://api.openweathermap.org/data/3.0/onecall?lat=\(lat)&lon=\(lon)&exclude=minutely&appid=\(apiKey)&units=metric"
         
         guard let url = URL(string: urlString) else {
-            print("Invalid URL")
             return
         }
         
@@ -48,7 +46,6 @@ class WeatherServiceCompletion {
             }
             
             guard let data = data else {
-                print("No data received")
                 return
             }
             

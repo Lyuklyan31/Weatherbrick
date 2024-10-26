@@ -134,7 +134,6 @@ extension LocationViewController: UITextFieldDelegate {
                 applySnapshot()
             } catch {
                 if !(error is CancellationError) {
-                    print("Error while fetching cities: \(error)")
                 }
             }
         }

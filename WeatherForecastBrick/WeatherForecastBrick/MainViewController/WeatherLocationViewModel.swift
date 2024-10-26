@@ -48,7 +48,6 @@ class WeatherLocationViewModel: NSObject {
             )
             return currentWeather
         } catch {
-            print("Error fetching weather: \(error.localizedDescription)")
             throw error
         }
     }
@@ -62,7 +61,6 @@ class WeatherLocationViewModel: NSObject {
             )
             return cities
         } catch {
-            print("Error fetching cities: \(error.localizedDescription)")
             throw error
         }
     }

@@ -8,7 +8,6 @@ class BackgroundView: UIView {
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        setupGradient()
     }
     
     private func setupGradient() {

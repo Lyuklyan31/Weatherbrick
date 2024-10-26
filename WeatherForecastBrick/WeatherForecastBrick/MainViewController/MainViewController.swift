@@ -270,7 +270,6 @@ class MainViewController: UIViewController {
                     weatherTypeLabel.text =  weatherType.rawValue
                 }
             } catch {
-                print("Error fetching weather: \(error.localizedDescription)")
             }
         }
     }
