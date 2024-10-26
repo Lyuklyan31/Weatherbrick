@@ -106,7 +106,8 @@ class LocationViewController: UIViewController {
     
     private func fetchCities() {
         Task {
-            viewModel.cities = try await viewModel.fetchCity(query: searchTextField.text ?? "")
+            let fetchedCities = try await viewModel.fetchCity(query: searchTextField.text ?? "")
+            viewModel.updateCities(with: fetchedCities)
             applySnapshot()
         }
     }

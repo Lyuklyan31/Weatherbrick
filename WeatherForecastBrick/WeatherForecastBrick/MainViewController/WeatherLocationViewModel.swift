@@ -9,11 +9,12 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     private let geoService = GeoService()
     
     // MARK: - Data Properties
-    @Published var cities = [CityData]()
-    var selectedCityName: String
-    var selectedCountryName: String
-    var latitude: Double
-    var longitude: Double
+    @Published private(set) var cities = [CityData]()
+    
+    private(set) var selectedCityName: String
+    private(set) var selectedCountryName: String
+    private(set) var latitude: Double
+    private(set) var longitude: Double
     
     private var fetchTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
@@ -47,25 +48,25 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     
     // MARK: - Get Weather Data
     func getWeather() async throws -> WeatherData {
-        do {
-            let currentWeather = try await weatherService.fetchWeatherData(
-                lat: latitude,
-                lon: longitude,
-                apiKey: getAPIKey()
-            )
-            return currentWeather
-        } catch {
-            throw error
-        }
+        let currentWeather = try await weatherService.fetchWeatherData(
+            lat: latitude,
+            lon: longitude,
+            apiKey: getAPIKey()
+        )
+        return currentWeather
     }
 
     // MARK: - Fetch City
-    func fetchCity(query : String) async throws -> [CityData] {
+    func fetchCity(query: String) async throws -> [CityData] {
         let city = try await geoService.fetchCities(
             for: query,
             apiKey: getAPIKey()
         )
         return city
+    }
+    
+    func updateCities(with newCities: [CityData]) {
+        cities = newCities
     }
 
     // MARK: - Fetch Cities Based on Query
@@ -90,7 +91,9 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
             .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
             .sink { [weak self] searchText in
                 Task {
-                    try await self?.fetchCities(for: searchText)
+                    do {
+                        try await self?.fetchCities(for: searchText)
+                    }
                 }
             }
             .store(in: &cancellables)
