@@ -80,9 +80,9 @@ class LocationViewController: UIViewController {
                 cityData.lat == self.viewModel.latitude &&
                 cityData.lon == self.viewModel.longitude &&
                 cityData.country == self.viewModel.selectedCountryName {
-                cell.applyChecked()
+                cell.applyCheckedLook()
             } else {
-                cell.uncheckedLook()
+                cell.applyUncheckedLook()
             }
             return cell
         }
@@ -100,7 +100,7 @@ class LocationViewController: UIViewController {
             tableView.selectRow(at: selectedIndexPath, animated: true, scrollPosition: .none)
             
             if let cell = tableView.cellForRow(at: selectedIndexPath) as? CityCell {
-                cell.applyChecked()
+                cell.applyCheckedLook()
             }
         }
     }
@@ -147,11 +147,11 @@ extension LocationViewController: UITableViewDelegate {
         viewModel.updateSelectedCity(at: indexPath.row)
 
         if let previousCell = tableView.cellForRow(at: selectedIndexPath ?? IndexPath(row: 0, section: 0)) as? CityCell {
-            previousCell.uncheckedLook()
+            previousCell.applyUncheckedLook()
         }
         
         if let cell = tableView.cellForRow(at: indexPath) as? CityCell {
-            cell.applyChecked()
+            cell.applyCheckedLook()
         }
         selectedIndexPath = indexPath
         

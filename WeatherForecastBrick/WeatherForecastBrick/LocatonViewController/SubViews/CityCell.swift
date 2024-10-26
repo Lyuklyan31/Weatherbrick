@@ -46,12 +46,12 @@ class CityCell: UITableViewCell {
         cellLabel.text = cityName
     }
     
-    func applyChecked() {
+    func applyCheckedLook() {
         cheсkmark.image = UIImage(systemName: "checkmark.circle.fill")
         cheсkmark.tintColor = .systemGreen
     }
 
-    func uncheckedLook() {
+    func applyUncheckedLook() {
         cheсkmark.image = UIImage(systemName: "circle")
         cheсkmark.tintColor = .black
     }
