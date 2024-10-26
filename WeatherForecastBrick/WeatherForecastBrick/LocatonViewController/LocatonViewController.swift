@@ -4,14 +4,13 @@ import UIKit
 class LocationViewController: UIViewController {
     
     // MARK: - Properties
-    private let viewModel: WeatherLocationViewModel
+    private var viewModel: WeatherLocationViewModel
 
     private let searchTextField = UISearchTextField()
     private let tableView = UITableView()
     private let backgroundView = UIView()
     
     private var selectedIndexPath: IndexPath?
-    private var currentTask: Task<Void, Never>?
     private var dataSource: UITableViewDiffableDataSource<Int, CityData>!
     
     var onCitySelected: (() -> Void)?
@@ -78,8 +77,8 @@ class LocationViewController: UIViewController {
             
             if cityData.name == self.viewModel.selectedCityName &&
                 cityData.lat == self.viewModel.latitude &&
-                cityData.lon == self.viewModel.longitude &&
-                cityData.country == self.viewModel.selectedCountryName {
+                cityData.lon == self.viewModel.longitude
+                {
                 cell.applyCheckedLook()
             } else {
                 cell.applyUncheckedLook()
@@ -107,7 +106,7 @@ class LocationViewController: UIViewController {
     
     private func fetchCities() {
         Task {
-            viewModel.cities = try await viewModel.fetchCities(for: searchTextField.text ?? "")
+            viewModel.cities = try await viewModel.fetchCity(query: searchTextField.text ?? "")
             applySnapshot()
         }
     }
@@ -117,26 +116,8 @@ class LocationViewController: UIViewController {
 extension LocationViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let currentText = (textField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? ""
-        
-        currentTask?.cancel()
-        
-        guard !currentText.isEmpty else {
-            viewModel.cities = []
-            applySnapshot()
-            return true
-        }
-        
-        currentTask = Task {
-            do {
-                try await Task.sleep(nanoseconds: 500_000_000)
-                if Task.isCancelled { return }
-                fetchCities()
-                applySnapshot()
-            } catch {
-                if !(error is CancellationError) {
-                }
-            }
-        }
+        viewModel.getTextFromTextField(currentText)
+        applySnapshot()
         return true
     }
 }
@@ -145,10 +126,6 @@ extension LocationViewController: UITextFieldDelegate {
 extension LocationViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         viewModel.updateSelectedCity(at: indexPath.row)
-
-        if let previousCell = tableView.cellForRow(at: selectedIndexPath ?? IndexPath(row: 0, section: 0)) as? CityCell {
-            previousCell.applyUncheckedLook()
-        }
         
         if let cell = tableView.cellForRow(at: indexPath) as? CityCell {
             cell.applyCheckedLook()
@@ -157,7 +134,8 @@ extension LocationViewController: UITableViewDelegate {
         
         let selected = viewModel.cities[indexPath.row]
         searchTextField.text = selected.name + ", " + selected.getFullCountryName()
-
+        applySnapshot()
+        
         dismiss(animated: true) {
             self.onCitySelected?()
         }
