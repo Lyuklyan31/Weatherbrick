@@ -1,6 +1,7 @@
 import SnapKit
 import UIKit
 
+//MARK: - InfoView
 class ButtonInfoView: UIView {
 
     // MARK: - UI Elements

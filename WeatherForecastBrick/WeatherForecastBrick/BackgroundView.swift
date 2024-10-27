@@ -1,7 +1,7 @@
 import UIKit
 
+//MARK: - BackgroundView
 class BackgroundView: UIView {
-    // MARK: - Initialization
     
     override init(frame: CGRect) {
         super.init(frame: frame)

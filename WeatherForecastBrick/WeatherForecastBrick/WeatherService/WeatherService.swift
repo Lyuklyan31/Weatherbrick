@@ -1,7 +1,6 @@
 import Foundation
 
 // MARK: - WeatherService
-
 class WeatherService {
     
     // MARK: - Fetch Data
@@ -10,7 +9,7 @@ class WeatherService {
         // Forming the URL
         
         let urlString =  "https://api.openweathermap.org/data/2.5/weather?lat=\(lat)&lon=\(lon)&appid=\(apiKey)"
-        
+     
         // Validating the URL
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)

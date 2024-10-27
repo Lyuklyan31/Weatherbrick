@@ -1,6 +1,7 @@
 import UIKit
 import SnapKit
 
+// MARK: - InfoView
 class InfoView: UIView {
     
     private var downRectangleView = UIView()
