@@ -48,7 +48,7 @@ class LocationViewController: UIViewController {
         searchTextField.delegate = self
         searchTextField.layer.borderColor = UIColor.black.cgColor
         searchTextField.textColor = .black
-        searchTextField.text = viewModel.selectedCityName + ", " + viewModel.selectedCountryName
+        searchTextField.text = viewModel.selectedCityName.isEmpty ? "" : "\(viewModel.selectedCityName), \(viewModel.selectedCountryName)"
         
         searchTextField.snp.makeConstraints {
             $0.top.equalToSuperview().offset(20)
@@ -108,7 +108,7 @@ class LocationViewController: UIViewController {
     
     private func fetchCities() {
         Task {
-            let fetchedCities = try await viewModel.fetchCity(query: searchTextField.text ?? "")
+            let fetchedCities = try await viewModel.fetchCity(viewModel.selectedCityName + ", " + viewModel.selectedCountryName)
             viewModel.updateCities(with: fetchedCities)
             applySnapshot()
         }

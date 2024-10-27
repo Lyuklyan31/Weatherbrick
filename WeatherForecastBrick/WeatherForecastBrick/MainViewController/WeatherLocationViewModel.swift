@@ -11,21 +11,23 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     // MARK: - Data Properties
     @Published private(set) var cities = [CityData]()
     
-    private(set) var selectedCityName: String
-    private(set) var selectedCountryName: String
+    @Published private(set) var selectedCityName: String
+    @Published private(set) var selectedCountryName: String
     private(set) var latitude: Double
     private(set) var longitude: Double
-    var id: UUID
+    private(set) var id: UUID
+    
     private var fetchTask: Task<Void, Never>?
-    private var cancellables = Set<AnyCancellable>()
     private let searchTextSubject = PassthroughSubject<String, Never>()
+    
+    var cancellables = Set<AnyCancellable>()
     
     // MARK: - Initializer
     init(
-        selectedCityName: String = "Ivano-Frankivsk",
-        selectedCountryName: String = "Ukraine",
-        latitude: Double = 48.9224763,
-        longitude: Double = 48.710334,
+        selectedCityName: String = "",
+        selectedCountryName: String = "",
+        latitude: Double = 0,
+        longitude: Double = 0,
         id: UUID? = nil
     ) {
         self.selectedCityName = selectedCityName
@@ -35,6 +37,18 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
         self.id = id ?? UUID()
         super.init()
         setupDebounceForSearchInput()
+    }
+    
+    func updateLocation(latitude: Double, longitude: Double) async {
+        self.latitude = latitude
+        self.longitude = longitude
+        
+        Task {
+            let city = try await fetchCityByLocation(lon: longitude, lat: latitude)
+            let fullCountryName = city.getFullCountryName()
+            self.selectedCityName = city.name
+            self.selectedCountryName = fullCountryName
+        }
     }
     
     // MARK: - Update Selected City
@@ -57,11 +71,21 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
         )
         return currentWeather
     }
-
+    
+    // MARK: - Fetch City By Location
+    func fetchCityByLocation(lon: Double, lat: Double) async throws -> CityLocation {
+        let city = try await geoService.fetchCityByCoordinates(
+            lon: lon,
+            lat: lat,
+            apiKey: getAPIKey()
+        )
+        return city
+    }
+    
     // MARK: - Fetch City
-    func fetchCity(query: String) async throws -> [CityData] {
+    func fetchCity(_ text: String) async throws -> [CityData] {
         let city = try await geoService.fetchCities(
-            for: query,
+            for: text,
             apiKey: getAPIKey()
         )
         return city
@@ -76,9 +100,9 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
         fetchTask?.cancel()
         
         guard !searchQuery.isEmpty else {
-               self.cities = []
-               return
-           }
+            self.cities = []
+            return
+        }
         
         fetchTask = Task {
             do {

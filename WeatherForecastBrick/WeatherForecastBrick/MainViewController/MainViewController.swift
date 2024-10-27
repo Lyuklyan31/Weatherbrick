@@ -1,7 +1,9 @@
 import UIKit
 import SnapKit
 import Network
+import CoreLocation
 
+// MARK: - MainViewController
 class MainViewController: UIViewController {
     
     // MARK: - Properties
@@ -27,15 +29,18 @@ class MainViewController: UIViewController {
     private var magnifyingGlassUIImageView = UIImageView()
     private var brickUIImageVIew = UIImageView()
     
+    private let locationManager = CLLocationManager()
+    
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
         configureDefaults()
+        setupUI()
     }
     
     // MARK: - UI Setup
     func setupUI() {
+        updateUIForNoInternet()
         setupBackgroundView()
         setupBrickUIImageVIew()
         setupTemperatureLabel()
@@ -43,13 +48,14 @@ class MainViewController: UIViewController {
         setupLocationButton()
         setupInfoButton()
         setupInfoView()
-        updateUIForNoInternet()
     }
     
     // MARK: - Default Configuration
     private func configureDefaults() {
+        setupLocationManager()
         fetchWeatherData()
         setupNetworkMonitor()
+        setupBindings()
     }
     
     // MARK: - Setup BackgroundView
@@ -225,6 +231,17 @@ class MainViewController: UIViewController {
         showRectangleView()
     }
     
+    // MARK: - Setup Bindings
+    private func setupBindings() {
+        viewModel.$selectedCityName
+            .combineLatest(viewModel.$selectedCountryName)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] cityName, countryName in
+                self?.updateLocationButton()
+            }
+            .store(in: &viewModel.cancellables)
+    }
+    
     // MARK: - Show/Hide Animations
     private func showRectangleView() {
         UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseOut, animations: {
@@ -259,7 +276,7 @@ class MainViewController: UIViewController {
                 let weatherData = try await viewModel.getWeather()
                 let tempInCelsius = weatherData.main.temp.kelvinToCelsius()
                 temperatureLabel.text = "\(tempInCelsius)"
-
+                
                 let weatherConditions = weatherData.weather
                 
                 if let firstCondition = weatherConditions.first {
@@ -276,6 +293,7 @@ class MainViewController: UIViewController {
         DispatchQueue.main.async {
             self.weatherTypeLabel.text = "No Internet"
             self.temperatureLabel.text = "--"
+            self.locationButton.setTitle("No Internet Connection", for: .normal) 
             self.gradusLabel.isHidden = true
             self.brickUIImageVIew.image = UIImage(resource: .imageNoInternet)
         }
@@ -291,7 +309,9 @@ class MainViewController: UIViewController {
             } else {
                 self.fetchWeatherData()
                 DispatchQueue.main.async {
+                    self.setupLocationManager()
                     self.gradusLabel.isHidden = false
+                    self.setupBindings()
                 }
             }
         }
@@ -302,15 +322,15 @@ class MainViewController: UIViewController {
         let locationViewController = LocationViewController(viewModel: self.viewModel)
         locationViewController.modalPresentationStyle = .pageSheet
         locationViewController.onCitySelected = { [weak self] in
-               self?.updateLocationButton()
-               self?.dismiss(animated: true, completion: nil)
-           }
+            self?.updateLocationButton()
+            self?.dismiss(animated: true, completion: nil)
+        }
         self.present(locationViewController, animated: true, completion: nil)
     }
     
     // MARK: - Update Location Button
     func updateLocationButton() {
-        locationButton.setTitle("\(viewModel.selectedCityName), \(viewModel.selectedCountryName)", for: .normal)
+        locationButton.setTitle("\(viewModel.selectedCityName)\(viewModel.selectedCountryName)", for: .normal)
         fetchWeatherData()
     }
     
@@ -321,5 +341,33 @@ class MainViewController: UIViewController {
         }
         
         return WeatherTypes(rawValue: condition.capitalized) ?? .clear
+    }
+    
+    // MARK: - Location Manager Setup
+    func setupLocationManager() {
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+       
+        let status = locationManager.authorizationStatus
+
+        switch status {
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .authorizedWhenInUse, .authorizedAlways:
+            locationManager.startUpdatingLocation()
+       default:
+            break
+        }
+    }
+}
+
+// MARK: - CLLocationManagerDelegate
+extension MainViewController: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.first {
+            Task {
+                await viewModel.updateLocation(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+            }
+        }
     }
 }

@@ -157,6 +157,7 @@
 				DEVELOPMENT_TEAM = 6D4397MTLK;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WeatherForecastBrick/Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "App requires your location to provide weather updates.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -183,6 +184,7 @@
 				DEVELOPMENT_TEAM = 6D4397MTLK;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WeatherForecastBrick/Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "App requires your location to provide weather updates.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
