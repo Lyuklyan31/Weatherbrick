@@ -9,6 +9,10 @@
 		<string>Ubuntu-Regular.ttf</string>
 		<string>Ubuntu-Medium.ttf</string>
 	</array>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string></string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string></string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -26,6 +30,10 @@
 			</array>
 		</dict>
 	</dict>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 	<key>WeatherAPIKey</key>
 	<string>cc10660b8273174f9fe41ec67ebcbb5d</string>
 	<key>plist version=&quot;1.0&quot;</key>
