@@ -3,8 +3,8 @@ import Foundation
 // MARK: - GeoService
 class GeoService {
     
+    // MARK: - Fetch Cities With Query
     func fetchCities(for query: String, apiKey: String) async throws -> [CityData] {
-        
         guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
             throw URLError(.badURL)
         }
@@ -30,6 +30,7 @@ class GeoService {
         }
     }
     
+    // MARK: - Fetch City By Coordinate
     func fetchCityByCoordinates(lon: Double, lat: Double, apiKey: String) async throws -> CityLocation {
         let urlString = "https://api.openweathermap.org/geo/1.0/reverse?lat=\(lat)&lon=\(lon)&limit=1&appid=\(apiKey)"
         
@@ -57,4 +58,3 @@ class GeoService {
         }
     }
 }
-
