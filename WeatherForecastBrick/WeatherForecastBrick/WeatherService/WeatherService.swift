@@ -5,8 +5,8 @@ class WeatherService {
     
     // MARK: - Fetch Data
     
-    func fetchWeatherData(lat: Double, lon: Double, apiKey: String) async throws -> WeatherData {
-        // Forming the URL
+    func fetchWeatherData(lat: Double, lon: Double) async throws -> WeatherData {
+        let apiKey = getAPIKey()
         
         let urlString =  "https://api.openweathermap.org/data/2.5/weather?lat=\(lat)&lon=\(lon)&appid=\(apiKey)"
      
@@ -31,7 +31,9 @@ class WeatherService {
 
 //completion handler // основна відмінність більший контроль результатів та підтримка всіх версій IOS
 class WeatherServiceCompletion {
-    func fetchWeatherData(lat: Double, lon: Double, apiKey: String, completion: @escaping (Result<WeatherData, Error>) -> Void) {
+    func fetchWeatherData(lat: Double, lon: Double, completion: @escaping (Result<WeatherData, Error>) -> Void) {
+        let apiKey = getAPIKey()
+        
         let urlString = "https://api.openweathermap.org/data/3.0/onecall?lat=\(lat)&lon=\(lon)&exclude=minutely&appid=\(apiKey)&units=metric"
         
         guard let url = URL(string: urlString) else {
@@ -58,4 +60,8 @@ class WeatherServiceCompletion {
         
         task.resume()
     }
+}
+
+private func getAPIKey() -> String {
+    return Bundle.main.object(forInfoDictionaryKey: "WeatherAPIKey") as? String ?? ""
 }

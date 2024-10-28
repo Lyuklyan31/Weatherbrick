@@ -4,7 +4,9 @@ import Foundation
 class GeoService {
     
     // MARK: - Fetch Cities With Query
-    func fetchCities(for query: String, apiKey: String) async throws -> [CityData] {
+    func fetchCities(for query: String) async throws -> [CityData] {
+        let apiKey = getAPIKey()
+        
         guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
             throw URLError(.badURL)
         }
@@ -14,7 +16,7 @@ class GeoService {
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
         }
-        
+            // do catch ввипрвити
         do {
             let (data, response) = try await URLSession.shared.data(from: url)
             
@@ -31,7 +33,9 @@ class GeoService {
     }
     
     // MARK: - Fetch City By Coordinate
-    func fetchCityByCoordinates(lon: Double, lat: Double, apiKey: String) async throws -> CityLocation {
+    func fetchCityByCoordinates(lon: Double, lat: Double) async throws -> CityLocation {
+        let apiKey = getAPIKey()
+        
         let urlString = "https://api.openweathermap.org/geo/1.0/reverse?lat=\(lat)&lon=\(lon)&limit=1&appid=\(apiKey)"
         
         guard let url = URL(string: urlString) else {
@@ -50,11 +54,14 @@ class GeoService {
             guard let city = decodedResponse.first else {
                 throw NSError(domain: "No cities found", code: 404, userInfo: nil)
             }
-            
             return city
-            
         } catch {
             throw error
         }
     }
+}
+
+
+private func getAPIKey() -> String {
+    return Bundle.main.object(forInfoDictionaryKey: "WeatherAPIKey") as? String ?? ""
 }
