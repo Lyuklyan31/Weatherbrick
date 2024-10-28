@@ -1,4 +1,5 @@
 import UIKit
+import Combine
 import SnapKit
 import Network
 import CoreLocation
@@ -14,6 +15,7 @@ class MainViewController: UIViewController {
     private let infoView = InfoView()
     
     private let monitor = NWPathMonitor()
+    private let locationManager = CLLocationManager()
     
     private var gradusLabel = UILabel()
     private let weatherTypeLabel = UILabel()
@@ -29,7 +31,7 @@ class MainViewController: UIViewController {
     private var magnifyingGlassUIImageView = UIImageView()
     private var brickUIImageVIew = UIImageView()
     
-    private let locationManager = CLLocationManager()
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
@@ -55,7 +57,7 @@ class MainViewController: UIViewController {
         setupLocationManager()
         fetchWeatherData()
         setupNetworkMonitor()
-        setupBindings()
+        setupBinding()
     }
     
     // MARK: - Setup BackgroundView
@@ -232,14 +234,14 @@ class MainViewController: UIViewController {
     }
     
     // MARK: - Setup Bindings
-    private func setupBindings() {
+    private func setupBinding() {
         viewModel.$selectedCityName
             .combineLatest(viewModel.$selectedCountryName)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] cityName, countryName in
                 self?.updateLocationButton()
             }
-            .store(in: &viewModel.cancellables)
+            .store(in: &cancellables)
     }
     
     // MARK: - Show/Hide Animations
@@ -311,7 +313,7 @@ class MainViewController: UIViewController {
                 DispatchQueue.main.async {
                     self.setupLocationManager()
                     self.gradusLabel.isHidden = false
-                    self.setupBindings()
+                    self.setupBinding()
                 }
             }
         }

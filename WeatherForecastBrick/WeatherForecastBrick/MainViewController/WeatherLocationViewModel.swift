@@ -10,17 +10,16 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     
     // MARK: - Data Properties
     @Published private(set) var cities = [CityData]()
-    
     @Published private(set) var selectedCityName: String
     @Published private(set) var selectedCountryName: String
+    
     private(set) var latitude: Double
     private(set) var longitude: Double
     private(set) var id: UUID
     
     private var fetchTask: Task<Void, Never>?
     private let searchTextSubject = PassthroughSubject<String, Never>()
-    
-    var cancellables = Set<AnyCancellable>()
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Initializer
     init(
