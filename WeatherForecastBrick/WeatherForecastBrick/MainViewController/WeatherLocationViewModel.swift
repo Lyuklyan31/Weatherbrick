@@ -43,7 +43,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
         self.longitude = longitude
         
         Task {
-            let city = try await fetchCityByLocation(lon: longitude, lat: latitude)
+            let city = try await fetchCityByCoordinate(lon: longitude, lat: latitude)
             let fullCountryName = city.getFullCountryName()
             self.selectedCityName = city.name
             self.selectedCountryName = fullCountryName
@@ -72,7 +72,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     }
     
     // MARK: - Fetch City By Location
-    func fetchCityByLocation(lon: Double, lat: Double) async throws -> CityLocation {
+    func fetchCityByCoordinate(lon: Double, lat: Double) async throws -> CityLocation {
         let city = try await geoService.fetchCityByCoordinates(
             lon: lon,
             lat: lat,
