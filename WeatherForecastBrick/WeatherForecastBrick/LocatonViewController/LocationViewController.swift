@@ -33,8 +33,8 @@ class LocationViewController: UIViewController {
     // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureDefaults()
         setupUI()
+        configureDefaults()
     }
     
     // MARK: - Configure Defaults
