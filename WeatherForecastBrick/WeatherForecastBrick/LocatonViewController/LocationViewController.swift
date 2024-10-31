@@ -1,17 +1,22 @@
 import UIKit
+import Combine
+import SnapKit
 
 // MARK: - LocationViewController
 class LocationViewController: UIViewController {
     
     // MARK: - Properties
     private var viewModel: WeatherLocationViewModel
-
+    
+    // MARK: - UI Elements
     private let searchTextField = UISearchTextField()
     private let tableView = UITableView()
     private let backgroundView = UIView()
     
+    // MARK: - Variables
     private var selectedIndexPath: IndexPath?
-    private var dataSource: UITableViewDiffableDataSource<Int, CityData>!
+    private var dataSource: UITableViewDiffableDataSource<Int, WeatherLocationViewModel.City>!
+    private var cancellables = Set<AnyCancellable>()
     
     var onCitySelected: (() -> Void)?
     
@@ -24,7 +29,7 @@ class LocationViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,20 +40,46 @@ class LocationViewController: UIViewController {
     // MARK: - Configure Defaults
     private func configureDefaults() {
         setupDataSource()
+        setupBinding()
         fetchCities()
+    }
+    
+    // MARK: - Binding Setup
+    private func setupBinding() {
+        // Search Text Field Publisher
+        searchTextField.textPublisher
+            .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
+            .sink { [weak self] text in
+                Task {
+                    await self?.viewModel.fetchCities(for: text)
+                }
+            }
+            .store(in: &cancellables)
+        
+        // View Model Publishers
+        viewModel.$city
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] location in
+                self?.searchTextField.text = ("\(location.cityName), \(location.countryName)")
+            }
+            .store(in: &cancellables)
+        
+        // Cities Publisher
+        viewModel.$cities
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.applySnapshot()
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - UI Setup
     private func setupUI() {
         view.backgroundColor = .systemBackground
-        
         view.addSubview(searchTextField)
-        
         searchTextField.placeholder = "Enter city name"
-        searchTextField.delegate = self
         searchTextField.layer.borderColor = UIColor.black.cgColor
         searchTextField.textColor = .black
-        searchTextField.text = viewModel.selectedCityName.isEmpty ? "" : "\(viewModel.selectedCityName), \(viewModel.selectedCountryName)"
         
         searchTextField.snp.makeConstraints {
             $0.top.equalToSuperview().offset(20)
@@ -67,20 +98,22 @@ class LocationViewController: UIViewController {
             $0.bottom.greaterThanOrEqualToSuperview()
         }
     }
-
+    
+    // MARK: - Fetch Cities
+    func fetchCities() {
+        Task {
+            await viewModel.fetchCities(for: searchTextField.text ?? "")
+        }
+    }
+    
     // MARK: - Data Source Setup
     private func setupDataSource() {
-        dataSource = UITableViewDiffableDataSource<Int, CityData>(tableView: tableView) { tableView, indexPath, cityData in
+        dataSource = UITableViewDiffableDataSource<Int, WeatherLocationViewModel.City>(tableView: tableView) { [self] tableView, indexPath, cityData in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "CityCell", for: indexPath) as? CityCell else { return UITableViewCell() }
             
-            cell.configure(with: "\(cityData.name), \(cityData.getFullCountryName())")
+            cell.configure(with: "\(cityData.cityName), \(cityData.countryName)")
             
-            if cityData.name == self.viewModel.selectedCityName &&
-                cityData.lat == self.viewModel.latitude &&
-                cityData.lon == self.viewModel.longitude &&
-                cityData.getFullCountryName() == self.viewModel.selectedCountryName &&
-                cityData.id == self.viewModel.id
-                {
+            if cityData == viewModel.city {
                 cell.applyCheckedLook()
             } else {
                 cell.applyUncheckedLook()
@@ -88,40 +121,27 @@ class LocationViewController: UIViewController {
             return cell
         }
     }
-
+    
     // MARK: - Snapshot Handling
     private func applySnapshot() {
-        var snapshot = NSDiffableDataSourceSnapshot<Int, CityData>()
+        var snapshot = NSDiffableDataSourceSnapshot<Int, WeatherLocationViewModel.City>()
         snapshot.appendSections([0])
         snapshot.appendItems(viewModel.cities, toSection: 0)
         dataSource.apply(snapshot, animatingDifferences: true)
         
-        if let indexPath = viewModel.cities.firstIndex(where: { $0.name == viewModel.selectedCityName }) {
-            let selectedIndexPath = IndexPath(row: indexPath, section: 0)
-            tableView.selectRow(at: selectedIndexPath, animated: true, scrollPosition: .none)
-            
-            if let cell = tableView.cellForRow(at: selectedIndexPath) as? CityCell {
-                cell.applyCheckedLook()
-            }
-        }
+        selectCityRow()
     }
     
-    private func fetchCities() {
-        Task {
-            let fetchedCities = try await viewModel.fetchCity(viewModel.selectedCityName + ", " + viewModel.selectedCountryName)
-            viewModel.updateCities(with: fetchedCities)
-            applySnapshot()
+    // MARK: - Select City Row
+    private func selectCityRow() {
+        guard let selectedIndex = viewModel.cities.firstIndex(where: { $0 == viewModel.city }) else { return }
+        let selectedIndexPath = IndexPath(row: selectedIndex, section: 0)
+        
+        tableView.selectRow(at: selectedIndexPath, animated: true, scrollPosition: .none)
+        
+        if let cell = tableView.cellForRow(at: selectedIndexPath) as? CityCell {
+            cell.applyCheckedLook()
         }
-    }
-}
-
-// MARK: - UITextFieldDelegate
-extension LocationViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let currentText = (textField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? ""
-        viewModel.getTextFromTextField(currentText)
-        applySnapshot()
-        return true
     }
 }
 
@@ -136,9 +156,9 @@ extension LocationViewController: UITableViewDelegate {
         selectedIndexPath = indexPath
         
         let selected = viewModel.cities[indexPath.row]
-        searchTextField.text = selected.name + ", " + selected.getFullCountryName()
-        applySnapshot()
-        
+        searchTextField.text = selected.cityName + ", " + selected.countryName
         onCitySelected?()
     }
 }
+
+
