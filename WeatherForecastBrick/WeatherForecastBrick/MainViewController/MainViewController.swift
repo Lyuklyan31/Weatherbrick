@@ -1,16 +1,12 @@
 import UIKit
 import Combine
 import SnapKit
-import CoreLocation
 
 // MARK: - MainViewController
 class MainViewController: UIViewController {
     
     // MARK: - View Model
     let viewModel = WeatherLocationViewModel()
-    
-    // MARK: - Location Manager
-    private let locationManager = CLLocationManager()
     
     // MARK: - UI Elements
     private var infoButtonView = ButtonInfoView()
@@ -57,7 +53,6 @@ class MainViewController: UIViewController {
     // MARK: - Default Configuration
     private func configureDefaults() {
         setupBinding()
-        setupLocationManager()
     }
     
     func setupBinding() {
@@ -65,9 +60,6 @@ class MainViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] city in
                 self?.locationButton.setTitle("\(city.cityName), \(city.countryName)", for: .normal)
-                Task {
-                    await self?.viewModel.getWeather()
-                }
             }
             .store(in: &cancellables)
         
@@ -147,19 +139,17 @@ class MainViewController: UIViewController {
     }
     
     @objc func refreshViewController() {
-        Task {
-            if viewModel.isNetworkAvailable {
-                setupLocationManager()
-            } else {
-                updateUIForNoInternet()
-            }
-            viewModel.setupNetworkMonitor()
-            refreshControl.endRefreshing()
+        if viewModel.isNetworkAvailable {
+            viewModel.setupLocationManager()
+        } else {
+            updateUIForNoInternet()
         }
+        refreshControl.endRefreshing()
     }
     
     // MARK: - Temperature Label Setup
     func setupTemperatureLabel() {
+        temperatureLabel.accessibilityIdentifier = "temperatureLabelIdentifier"
         temperatureLabel.textColor = .black
         temperatureLabel.font = UIFont(name: "Ubuntu-Regular", size: 83)
         backgroundView.addSubview(temperatureLabel)
@@ -184,6 +174,7 @@ class MainViewController: UIViewController {
     
     // MARK: - Weather Type Label Setup
     func setupWeatherTypeLabel() {
+        weatherTypeLabel.accessibilityIdentifier = "weatherConditionLabelIdentifier"
         weatherTypeLabel.textColor = .black
         weatherTypeLabel.font = UIFont(name: "Ubuntu-Light", size: 36)
         backgroundView.addSubview(weatherTypeLabel)
@@ -198,6 +189,7 @@ class MainViewController: UIViewController {
     
     // MARK: - Location Button Setup
     func setupLocationButton() {
+        locationButton.accessibilityIdentifier = "locationButtonIdentifier"
         locationButton.setTitleColor(.black, for: .normal)
         locationButton.addTarget(self, action: #selector(openSheet), for: .touchUpInside)
         locationButton.titleLabel?.font = UIFont(name: "Ubuntu-Bold", size: 17)
@@ -316,34 +308,5 @@ class MainViewController: UIViewController {
         }
         return WeatherTypes(rawValue: condition.capitalized) ?? .clear
     }
-    
-    // MARK: - Location Manager Setup
-    func setupLocationManager() {
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        
-        let status = locationManager.authorizationStatus
-        
-        switch status {
-        case .notDetermined:
-            locationManager.requestWhenInUseAuthorization()
-            
-        case .authorizedWhenInUse, .authorizedAlways:
-            locationManager.startUpdatingLocation()
-            
-        default:
-            break
-        }
-    }
 }
 
-// MARK: - CLLocationManagerDelegate
-extension MainViewController: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.first {
-            Task {
-                await viewModel.fetchCityByCoordinate(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-            }
-        }
-    }
-}

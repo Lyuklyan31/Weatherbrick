@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import Network
+import CoreLocation
 
 // MARK: - WeatherLocationViewModel
 class WeatherLocationViewModel: NSObject, ObservableObject {
@@ -18,9 +19,20 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     private let weatherService = WeatherService()
     private let geoService = GeoService()
     
+    // MARK: - Location Manager
+    private let locationManager = CLLocationManager()
+    
     // MARK: - Data Properties
     @Published private(set) var cities = [City]()
-    @Published private(set) var city = City()
+    
+    // MARK: - City
+    @Published private(set) var city = City() {
+        didSet {
+            Task {
+                await getWeather()
+            }
+        }
+    }
     
     // MARK: - Weather Data
     @Published private(set) var weatherData: WeatherData?
@@ -30,9 +42,10 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     private(set) var isNetworkAvailable: Bool = false
     
     // MARK: - Initializer
-   override init() {
+    override init() {
         super.init()
         setupNetworkMonitor()
+        setupLocationManager()
     }
     
     // MARK: - Fetch City by Coordinate
@@ -90,6 +103,36 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
         
         monitor.pathUpdateHandler = { [weak self] path in
             self?.isNetworkAvailable = (path.status == .satisfied)
+        }
+    }
+    
+    // MARK: - Location Manager Setup
+    func setupLocationManager() {
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        
+        let status = locationManager.authorizationStatus
+        
+        switch status {
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+            
+        case .authorizedWhenInUse, .authorizedAlways:
+            locationManager.startUpdatingLocation()
+            
+        default:
+            break
+        }
+    }
+}
+
+// MARK: - CLLocationManagerDelegate
+extension WeatherLocationViewModel: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.first {
+            Task {
+                await fetchCityByCoordinate(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+            }
         }
     }
 }
