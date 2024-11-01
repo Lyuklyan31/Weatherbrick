@@ -7,12 +7,18 @@ import CoreLocation
 class WeatherLocationViewModel: NSObject, ObservableObject {
     
     // MARK: - Location Data
-    struct City: Identifiable, Hashable {
+    struct City: Hashable, Equatable {
         var cityName = ""
         var countryName = ""
         var latitude = 0.0
         var longitude = 0.0
-        var id = UUID()
+        
+        static func == (lhs: City, rhs: City) -> Bool {
+            return lhs.cityName == rhs.cityName &&
+            lhs.countryName == rhs.countryName &&
+            lhs.latitude == rhs.latitude &&
+            lhs.longitude == rhs.longitude
+        }
     }
     
     // MARK: - Services
@@ -33,6 +39,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
             }
         }
     }
+    
     // MARK: - Weather Data
     @Published private(set) var weatherData: WeatherData?
     
@@ -51,28 +58,15 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
         setupLocationManager()
     }
     
-    // MARK: - Fetch City by Coordinate
-    private func fetchCityByCoordinate(latitude: Double, longitude: Double) async {
-        do {
-            let fetchedCity = try await geoService.fetchCityByCoordinates(longitude: longitude, latitude: latitude)
-            city = City(
-                cityName: fetchedCity.name,
-                countryName: fetchedCity.fullCountryName,
-                latitude: fetchedCity.lat,
-                longitude: fetchedCity.lon,
-                id: UUID()
-            )
-        } catch {
-            self.cities = []
-            alertMessage = "Error fetching city by coordinates."
-            showAlert = true
-        }
-    }
-    
     // MARK: - Update Selected City
     func updateSelectedCity(at index: Int) {
         let selected = cities[index]
         city = selected
+    }
+    
+    // MARK: - Check if City is Selected
+    func isCtySelected(_ cityData: City) -> Bool {
+        return cityData == city
     }
     
     // MARK: - Get Weather Data
@@ -95,13 +89,29 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
                     cityName: city.name,
                     countryName: city.fullCountryName,
                     latitude: city.lat,
-                    longitude: city.lon,
-                    id: UUID()
+                    longitude: city.lon
                 )
             }
         } catch {
             self.cities = []
             alertMessage = "Error fetching cities."
+            showAlert = true
+        }
+    }
+    
+    // MARK: - Fetch City by Coordinate
+    private func fetchCityByCoordinate(latitude: Double, longitude: Double) async {
+        do {
+            let fetchedCity = try await geoService.fetchCityByCoordinates(longitude: longitude, latitude: latitude)
+            city = City(
+                cityName: fetchedCity.name,
+                countryName: fetchedCity.fullCountryName,
+                latitude: fetchedCity.lat,
+                longitude: fetchedCity.lon
+            )
+        } catch {
+            self.cities = []
+            alertMessage = "Error fetching city by coordinates."
             showAlert = true
         }
     }

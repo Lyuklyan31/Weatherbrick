@@ -4,7 +4,7 @@ import Foundation
 class GeoService {
     
     // MARK: - Fetch Cities by Name
-    func fetchCitiesByName(for query: String) async throws -> [CityData] {
+    func fetchCitiesByName(for query: String) async throws -> Set<CityData> {
         let apiKey = APIKeyProvider.getAPIKey()
         
         guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
@@ -19,7 +19,7 @@ class GeoService {
         
         let (data, _) = try await URLSession.shared.data(from: url)
         
-        let decodedResponse = try JSONDecoder().decode([CityData].self, from: data)
+        let decodedResponse = try JSONDecoder().decode(Set<CityData>.self, from: data)
         return decodedResponse
     }
     

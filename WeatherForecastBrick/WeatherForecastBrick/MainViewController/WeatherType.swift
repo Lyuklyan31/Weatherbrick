@@ -14,6 +14,7 @@ enum WeatherTypes: String, Codable {
     case squall = "Squall"
     case hot = "Hot"
     
+    // MARK: - WeatherTypeImage
     var image: UIImage {
         switch self {
         case .rain, .drizzle, .thunderstorm:
