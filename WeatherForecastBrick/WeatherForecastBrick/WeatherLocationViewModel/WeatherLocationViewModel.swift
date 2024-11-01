@@ -25,7 +25,6 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     // MARK: - Data Properties
     @Published private(set) var cities = [City]()
     
-    // MARK: - City
     @Published private(set) var city = City() {
         didSet {
             Task {
@@ -33,9 +32,9 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
             }
         }
     }
-    
-    // MARK: - Weather Data
     @Published private(set) var weatherData: WeatherData?
+    @Published var showAlert = false
+    @Published var alertMessage = ""
     
     // MARK: - Network Monitor
     private let monitor = NWPathMonitor()
@@ -49,7 +48,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     }
     
     // MARK: - Fetch City by Coordinate
-    func fetchCityByCoordinate(latitude: Double, longitude: Double) async {
+    private func fetchCityByCoordinate(latitude: Double, longitude: Double) async {
         do {
             let fetchedCity = try await geoService.fetchCityByCoordinates(longitude: longitude, latitude: latitude)
             city = City(
@@ -61,6 +60,8 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
             )
         } catch {
             self.cities = []
+            alertMessage = "Error fetching city by coordinates."
+            showAlert = true
         }
     }
     
@@ -71,11 +72,13 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     }
     
     // MARK: - Get Weather Data
-    func getWeather() async  {
+    private func getWeather() async {
         do {
             self.weatherData = try await weatherService.fetchWeatherData(lat: city.latitude, lon: city.longitude)
         } catch {
             self.weatherData = nil
+            alertMessage = "Error fetching weather data."
+            showAlert = true
         }
     }
     
@@ -94,11 +97,13 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
             }
         } catch {
             self.cities = []
+            alertMessage = "Error fetching cities."
+            showAlert = true
         }
     }
     
     // MARK: - Network Monitor
-    func setupNetworkMonitor() {
+    private func setupNetworkMonitor() {
         monitor.start(queue: DispatchQueue.global(qos: .background))
         
         monitor.pathUpdateHandler = { [weak self] path in

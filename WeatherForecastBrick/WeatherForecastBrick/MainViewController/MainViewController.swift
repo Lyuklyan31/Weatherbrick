@@ -79,6 +79,19 @@ class MainViewController: UIViewController {
                 }
             }
             .store(in: &cancellables)
+        
+        viewModel.$showAlert
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] showAlert in
+                if showAlert {
+                    let alert = UIAlertController(title: "Error", message: self?.viewModel.alertMessage, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+                        self?.viewModel.showAlert = false
+                    })
+                    self?.present(alert, animated: true, completion: nil)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - Setup BackgroundView
