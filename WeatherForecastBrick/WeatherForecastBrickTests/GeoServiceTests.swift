@@ -1,23 +1,24 @@
 import XCTest
 @testable import WeatherForecastBrick
 
+// GeoServiceTests
 final class GeoServiceTests: XCTestCase {
     var geoService: GeoService!
-
+    
     // MARK: - Setup and Teardown
-
+    
     override func setUp() {
         super.setUp()
         geoService = GeoService()
     }
-
+    
     override func tearDown() {
         geoService = nil
         super.tearDown()
     }
     
-// MARK: - Fetch City Tests
-
+    // MARK: - Fetch City Tests
+    
     func testFetchCitiesReturnsValidData() async {
         let query = "Kyiv"
         
@@ -43,7 +44,7 @@ final class GeoServiceTests: XCTestCase {
         }
     }
     
-// MARK: Fetch City By Coordinate
+    // MARK: Fetch City By Coordinate
     
     func testFetchByCoordinatesKyiv() async {
         let longitude = 30.5234
@@ -71,11 +72,5 @@ final class GeoServiceTests: XCTestCase {
         } catch {
             XCTFail("Unexpected error thrown: \(error)")
         }
-    }
-    
-    // MARK: - Helpers
-
-    private func getAPIKey() -> String {
-        return Bundle.main.object(forInfoDictionaryKey: "WeatherAPIKey") as? String ?? ""
     }
 }

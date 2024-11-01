@@ -102,6 +102,7 @@ class MainViewController: UIViewController {
     
     // MARK: - Brick Image View Setup
     func setupBrickUIImageVIew() {
+        brickUIImageVIew.accessibilityIdentifier = "brickUIImageIdentifier"
         brickUIImageVIew.contentMode = .scaleAspectFit
         view.addSubview(brickUIImageVIew)
         
