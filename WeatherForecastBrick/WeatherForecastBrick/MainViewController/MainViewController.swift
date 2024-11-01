@@ -85,9 +85,7 @@ class MainViewController: UIViewController {
             .sink { [weak self] showAlert in
                 if showAlert {
                     let alert = UIAlertController(title: "Error", message: self?.viewModel.alertMessage, preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
-                        self?.viewModel.showAlert = false
-                    })
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
                     self?.present(alert, animated: true, completion: nil)
                 }
             }

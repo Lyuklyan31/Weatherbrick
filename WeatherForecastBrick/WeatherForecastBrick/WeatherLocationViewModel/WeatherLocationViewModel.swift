@@ -25,6 +25,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     // MARK: - Data Properties
     @Published private(set) var cities = [City]()
     
+    // MARK: - City
     @Published private(set) var city = City() {
         didSet {
             Task {
@@ -32,9 +33,12 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
             }
         }
     }
+    // MARK: - Weather Data
     @Published private(set) var weatherData: WeatherData?
-    @Published var showAlert = false
-    @Published var alertMessage = ""
+    
+    // MARK: - Alert Properties
+    @Published private(set) var showAlert = false
+    @Published private(set) var alertMessage = ""
     
     // MARK: - Network Monitor
     private let monitor = NWPathMonitor()
@@ -56,7 +60,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
                 countryName: fetchedCity.fullCountryName,
                 latitude: fetchedCity.lat,
                 longitude: fetchedCity.lon,
-                id: self.city.id
+                id: UUID()
             )
         } catch {
             self.cities = []
@@ -92,7 +96,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
                     countryName: city.fullCountryName,
                     latitude: city.lat,
                     longitude: city.lon,
-                    id: self.city.id
+                    id: UUID()
                 )
             }
         } catch {
