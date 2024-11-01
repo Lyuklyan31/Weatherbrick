@@ -306,9 +306,6 @@ class MainViewController: UIViewController {
     @objc func openSheet() {
         let locationViewController = LocationViewController(viewModel: self.viewModel)
         locationViewController.modalPresentationStyle = .pageSheet
-        locationViewController.onCitySelected = { [weak self] in
-            self?.dismiss(animated: true, completion: nil)
-        }
         self.present(locationViewController, animated: true, completion: nil)
     }
     

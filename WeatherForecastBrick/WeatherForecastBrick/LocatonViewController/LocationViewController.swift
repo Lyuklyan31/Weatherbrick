@@ -18,8 +18,6 @@ class LocationViewController: UIViewController {
     private var dataSource: UITableViewDiffableDataSource<Int, WeatherLocationViewModel.City>!
     private var cancellables = Set<AnyCancellable>()
     
-    var onCitySelected: (() -> Void)?
-    
     // MARK: - Initializer
     init(viewModel: WeatherLocationViewModel) {
         self.viewModel = viewModel
@@ -157,7 +155,7 @@ extension LocationViewController: UITableViewDelegate {
         
         let selected = viewModel.cities[indexPath.row]
         searchTextField.text = selected.cityName + ", " + selected.countryName
-        onCitySelected?()
+        dismiss(animated: true)
     }
 }
 
