@@ -111,7 +111,7 @@ class LocationViewController: UIViewController {
             
             cell.configure(with: "\(cityData.cityName), \(cityData.countryName)")
             
-            if cityData == viewModel.city {
+            if viewModel.isCitySelected(cityData){
                 cell.applyCheckedLook()
             } else {
                 cell.applyUncheckedLook()

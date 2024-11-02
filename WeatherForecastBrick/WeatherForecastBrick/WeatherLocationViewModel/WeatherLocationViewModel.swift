@@ -12,6 +12,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
         var countryName = ""
         var latitude = 0.0
         var longitude = 0.0
+        var id = UUID()
         
         static func == (lhs: City, rhs: City) -> Bool {
             return lhs.cityName == rhs.cityName &&
@@ -65,7 +66,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     }
     
     // MARK: - Check if City is Selected
-    func isCtySelected(_ cityData: City) -> Bool {
+    func isCitySelected(_ cityData: City) -> Bool {
         return cityData == city
     }
     
@@ -89,7 +90,8 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
                     cityName: city.name,
                     countryName: city.fullCountryName,
                     latitude: city.lat,
-                    longitude: city.lon
+                    longitude: city.lon,
+                    id: UUID()
                 )
             }
         } catch {
@@ -107,7 +109,8 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
                 cityName: fetchedCity.name,
                 countryName: fetchedCity.fullCountryName,
                 latitude: fetchedCity.lat,
-                longitude: fetchedCity.lon
+                longitude: fetchedCity.lon,
+                id: UUID()
             )
         } catch {
             self.cities = []
