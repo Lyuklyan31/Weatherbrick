@@ -6,6 +6,7 @@ import CoreLocation
 // MARK: - WeatherLocationViewModel
 class WeatherLocationViewModel: NSObject, ObservableObject {
     
+    // MARK: - City
     struct City: Hashable, Equatable {
         var cityName = ""
         var countryName = ""
@@ -13,7 +14,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
         var longitude = 0.0
         var id = UUID()
         
-        // MARK: - Equatable
+        // MARK: Equatable
         static func == (lhs: City, rhs: City) -> Bool {
             return lhs.cityName == rhs.cityName &&
             lhs.countryName == rhs.countryName &&
@@ -21,6 +22,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
             lhs.longitude == rhs.longitude
         }
         
+        // MARK: Hashable
         func hash(into hasher: inout Hasher) {
             hasher.combine(cityName)
             hasher.combine(countryName)
@@ -101,10 +103,11 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
                     latitude: city.lat,
                     longitude: city.lon
                 )
-              
+                
                 if !newCities.contains(newCity) {
                     newCities.append(newCity)
                 }
+//                newCities.append(newCity)
             }
             
             self.cities = newCities
