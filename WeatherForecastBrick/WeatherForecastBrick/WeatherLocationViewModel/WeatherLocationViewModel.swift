@@ -142,6 +142,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
         monitor.start(queue: .main)
     }
     
+    // MARK: - Refresh Data
     func refreshData() {
         guard isNetworkAvailable else {
             alertMessage = "No Internet Connection"
