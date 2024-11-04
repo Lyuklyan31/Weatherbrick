@@ -13,6 +13,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
         var latitude = 0.0
         var longitude = 0.0
         var id = UUID()
+        var isSelected = false
         
         // MARK: Equatable
         static func == (lhs: City, rhs: City) -> Bool {
@@ -54,13 +55,11 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     @Published private(set) var weatherData: WeatherData?
     
     // MARK: - Alert Properties
-    @Published private(set) var showAlert = false
-    @Published private(set) var alertMessage = ""
+    @Published private(set) var alertMessage: String?
     
     // MARK: - Network Monitor
     private let monitor = NWPathMonitor()
-    private(set) var isNetworkAvailable: Bool = false
-    
+    @Published private(set) var isNetworkAvailable = false
     // MARK: - Initializer
     override init() {
         super.init()
@@ -70,13 +69,15 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     
     // MARK: - Update Selected City
     func updateSelectedCity(at index: Int) {
-        let selected = cities[index]
-        city = selected
+        cities.indices.forEach { cities[$0].isSelected = false }
+        
+        cities[index].isSelected = true
+        city = cities[index]
     }
     
     // MARK: - Check if City is Selected
     func isCitySelected(_ cityData: City) -> Bool {
-        return cityData == city
+        return cityData.isSelected
     }
     
     // MARK: - Get Weather Data
@@ -86,7 +87,6 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
         } catch {
             self.weatherData = nil
             alertMessage = "Error fetching weather data."
-            showAlert = true
         }
     }
     
@@ -107,17 +107,15 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
                 if !newCities.contains(newCity) {
                     newCities.append(newCity)
                 }
-//                newCities.append(newCity)
             }
             
             self.cities = newCities
         } catch {
             self.cities = []
             alertMessage = "Error fetching cities."
-            showAlert = true
         }
     }
-
+    
     // MARK: - Fetch City by Coordinate
     private func fetchCityByCoordinate(latitude: Double, longitude: Double) async {
         do {
@@ -131,17 +129,27 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
         } catch {
             self.cities = []
             alertMessage = "Error fetching city by coordinates."
-            showAlert = true
         }
     }
     
     // MARK: - Network Monitor
-    private func setupNetworkMonitor() {
-        monitor.start(queue: DispatchQueue.global(qos: .background))
-        
+    func setupNetworkMonitor() {
         monitor.pathUpdateHandler = { [weak self] path in
-            self?.isNetworkAvailable = (path.status == .satisfied)
+            DispatchQueue.main.async {
+                self?.isNetworkAvailable = (path.status == .satisfied)
+            }
         }
+        monitor.start(queue: .main)
+    }
+    
+    func refreshData() {
+        guard isNetworkAvailable else {
+            alertMessage = "No Internet Connection"
+            return
+        }
+        
+        setupLocationManager()
+        Task { await getWeather() }
     }
     
     // MARK: - Location Manager Setup

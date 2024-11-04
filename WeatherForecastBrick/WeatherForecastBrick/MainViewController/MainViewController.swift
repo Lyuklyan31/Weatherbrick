@@ -80,13 +80,21 @@ class MainViewController: UIViewController {
             }
             .store(in: &cancellables)
         
-        viewModel.$showAlert
+        viewModel.$alertMessage
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] showAlert in
-                if showAlert {
-                    let alert = UIAlertController(title: "Error", message: self?.viewModel.alertMessage, preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default))
-                    self?.present(alert, animated: true, completion: nil)
+            .sink { [weak self] alertMessage in
+                guard let message = alertMessage else { return }
+                let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self?.present(alert, animated: true)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.$isNetworkAvailable
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isAvailable in
+                if !isAvailable {
+                    self?.updateUIForNoInternet()
                 }
             }
             .store(in: &cancellables)
@@ -138,7 +146,6 @@ class MainViewController: UIViewController {
             
         case .ended, .cancelled:
             if translation.y > 50 {
-                refreshControl.beginRefreshing()
                 refreshViewController()
             }
             UIView.animate(withDuration: 0.3) {
@@ -151,11 +158,8 @@ class MainViewController: UIViewController {
     }
     
     @objc func refreshViewController() {
-        if viewModel.isNetworkAvailable {
-            viewModel.setupLocationManager()
-        } else {
-            updateUIForNoInternet()
-        }
+        refreshControl.beginRefreshing()
+        viewModel.refreshData()
         refreshControl.endRefreshing()
     }
     

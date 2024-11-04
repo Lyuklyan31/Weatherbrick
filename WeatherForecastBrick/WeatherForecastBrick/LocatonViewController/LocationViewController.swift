@@ -66,7 +66,7 @@ class LocationViewController: UIViewController {
         viewModel.$cities
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.applySnapshot()
+                self?.applySnapshot(with: self?.viewModel.cities ?? [])
             }
             .store(in: &cancellables)
     }
@@ -121,10 +121,10 @@ class LocationViewController: UIViewController {
     }
     
     // MARK: - Snapshot Handling
-    private func applySnapshot() {
+    private func applySnapshot(with cities: [WeatherLocationViewModel.City]) {
         var snapshot = NSDiffableDataSourceSnapshot<Int, WeatherLocationViewModel.City>()
         snapshot.appendSections([0])
-        snapshot.appendItems(viewModel.cities, toSection: 0)
+        snapshot.appendItems(cities, toSection: 0)
         dataSource.apply(snapshot, animatingDifferences: true)
         
         selectCityRow()
@@ -147,16 +147,6 @@ class LocationViewController: UIViewController {
 extension LocationViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         viewModel.updateSelectedCity(at: indexPath.row)
-        
-        if let cell = tableView.cellForRow(at: indexPath) as? CityCell {
-            cell.applyCheckedLook()
-        }
-        selectedIndexPath = indexPath
-        
-        let selected = viewModel.cities[indexPath.row]
-        searchTextField.text = selected.cityName + ", " + selected.countryName
         dismiss(animated: true)
     }
 }
-
-
