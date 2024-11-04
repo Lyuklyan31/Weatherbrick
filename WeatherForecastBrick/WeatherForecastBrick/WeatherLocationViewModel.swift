@@ -60,6 +60,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     // MARK: - Network Monitor
     private let monitor = NWPathMonitor()
     @Published private(set) var isNetworkAvailable = false
+    
     // MARK: - Initializer
     override init() {
         super.init()
@@ -73,11 +74,6 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
         
         cities[index].isSelected = true
         city = cities[index]
-    }
-    
-    // MARK: - Check if City is Selected
-    func isCitySelected(_ cityData: City) -> Bool {
-        return cityData.isSelected
     }
     
     // MARK: - Get Weather Data

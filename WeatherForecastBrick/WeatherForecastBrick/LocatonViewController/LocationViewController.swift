@@ -47,9 +47,9 @@ class LocationViewController: UIViewController {
         // Search Text Field Publisher
         searchTextField.textPublisher
             .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
-            .sink { [weak self] text in
+            .sink { [weak self] textFieldText in
                 Task {
-                    await self?.viewModel.fetchCities(for: text)
+                    await self?.viewModel.fetchCities(for: textFieldText)
                 }
             }
             .store(in: &cancellables)
@@ -57,16 +57,16 @@ class LocationViewController: UIViewController {
         // View Model Publishers
         viewModel.$city
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] location in
-                self?.searchTextField.text = ("\(location.cityName), \(location.countryName)")
+            .sink { [weak self] city in
+                self?.searchTextField.text = ("\(city.cityName), \(city.countryName)")
             }
             .store(in: &cancellables)
         
         // Cities Publisher
         viewModel.$cities
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.applySnapshot(with: self?.viewModel.cities ?? [])
+            .sink { [weak self] cities in
+                self?.applySnapshot(with: cities)
             }
             .store(in: &cancellables)
     }
@@ -106,12 +106,12 @@ class LocationViewController: UIViewController {
     
     // MARK: - Data Source Setup
     private func setupDataSource() {
-        dataSource = UITableViewDiffableDataSource<Int, WeatherLocationViewModel.City>(tableView: tableView) { [self] tableView, indexPath, cityData in
+        dataSource = UITableViewDiffableDataSource<Int, WeatherLocationViewModel.City>(tableView: tableView) { tableView, indexPath, cityData in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "CityCell", for: indexPath) as? CityCell else { return UITableViewCell() }
             
             cell.configure(with: "\(cityData.cityName), \(cityData.countryName)")
             
-            if viewModel.isCitySelected(cityData){
+            if cityData.isSelected {
                 cell.applyCheckedLook()
             } else {
                 cell.applyUncheckedLook()

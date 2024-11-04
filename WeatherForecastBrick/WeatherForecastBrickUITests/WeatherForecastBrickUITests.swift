@@ -6,12 +6,10 @@ class WeatherAppUITests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        
-        app = XCUIApplication()
-        app.launchArguments.append("--uitesting")
-        app.launch()
-        
         continueAfterFailure = false
+        app = XCUIApplication()
+        app.launchArguments.append("-disableAnimations")
+        app.launch()
     }
     
     // MARK: - TestTemperatureLabel
@@ -30,6 +28,7 @@ class WeatherAppUITests: XCTestCase {
         
         let validWeatherConditions = ["Clear", "Clouds", "Rain", "Snow", "Thunderstorm", "Drizzle", "Mist", "Smoke", "Haze", "Dust", "Fog", "Sand", "Ash", "Squall", "Tornado"]
         let labelValue = weatherConditionLabel.label
+        sleep(2)
         XCTAssertTrue(validWeatherConditions.contains(labelValue), "Weather condition label does not contain a valid value")
     }
     
@@ -65,14 +64,31 @@ class WeatherAppUITests: XCTestCase {
     // MARK: - TestSearchForCity
     func testSearchForCity() {
         let locationButton = app.buttons["locationButtonIdentifier"]
+        XCTAssertTrue(locationButton.exists, "Location button should exist on the main screen for the city: Kyiv")
+        
         locationButton.tap()
         
         let searchTextField = app.textFields["Enter city name"]
         searchTextField.tap()
+        searchTextField.buttons["Clear text"].tap()
         searchTextField.typeText("Kyiv")
         
-        let firstCell = app.cells.element(boundBy: 0)
-        XCTAssertTrue(firstCell.waitForExistence(timeout: 3), "City should be shown in the results for the search: Kyiv")
+        sleep(1)
+
+        let firstCell = app.cells.staticTexts["Kyiv, Ukraine"]
+        XCTAssertTrue(firstCell.waitForExistence(timeout: 3), "City 'Kyiv' should be shown in the results for the search.")
+
+        let firstCityCell = app.tables.cells.firstMatch
+        XCTAssertTrue(firstCityCell.exists, "The first city cell should exist.")
+        
+        firstCityCell.tap()
+        sleep(1)
+
+        let locationButtonUpdated = app.buttons["locationButtonIdentifier"]
+        XCTAssertTrue(locationButtonUpdated.exists, "Location button should still exist after selecting a city.")
+        
+        let locationButtonTitle = locationButtonUpdated.label
+        XCTAssertEqual(locationButtonTitle, "Kyiv, Ukraine", "The location button title should update to the selected city.")
     }
     
     // MARK: - TestSelectCity

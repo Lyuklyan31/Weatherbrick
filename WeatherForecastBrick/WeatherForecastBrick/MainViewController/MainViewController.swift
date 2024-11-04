@@ -40,7 +40,6 @@ class MainViewController: UIViewController {
     
     // MARK: - UI Setup
     func setupUI() {
-        updateUIForNoInternet()
         setupBackgroundView()
         setupBrickUIImageVIew()
         setupTemperatureLabel()
@@ -66,16 +65,17 @@ class MainViewController: UIViewController {
         viewModel.$weatherData
             .receive(on: DispatchQueue.main)
             .sink { [weak self] weatherData in
-                guard let weatherData = weatherData else { return }
+                guard let self = self, let weatherData = weatherData else { return }
+                
                 let tempInCelsius = weatherData.main.temp.kelvinToCelsius()
-                self?.temperatureLabel.text = "\(tempInCelsius)"
+                self.temperatureLabel.text = "\(tempInCelsius)"
                 
                 let weatherConditions = weatherData.weather
                 
                 if let firstCondition = weatherConditions.first {
-                    let weatherType = self?.getWeatherType(from: firstCondition.main.rawValue, temperature: tempInCelsius)
-                    self?.brickUIImageVIew.image = weatherType?.image
-                    self?.weatherTypeLabel.text =  weatherType?.rawValue
+                    let weatherType = self.getWeatherType(from: firstCondition.main.rawValue, temperature: tempInCelsius)
+                    self.brickUIImageVIew.image = weatherType.image
+                    self.weatherTypeLabel.text = weatherType.rawValue
                 }
             }
             .store(in: &cancellables)
