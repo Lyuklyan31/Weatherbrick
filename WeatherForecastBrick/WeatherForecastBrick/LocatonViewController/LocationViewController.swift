@@ -48,8 +48,9 @@ class LocationViewController: UIViewController {
         searchTextField.textPublisher
             .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
             .sink { [weak self] textFieldText in
+                guard let self = self else { return }
                 Task {
-                    await self?.viewModel.fetchCities(for: textFieldText)
+                    await self.viewModel.fetchCities(for: textFieldText)
                 }
             }
             .store(in: &cancellables)
@@ -58,7 +59,8 @@ class LocationViewController: UIViewController {
         viewModel.$city
             .receive(on: DispatchQueue.main)
             .sink { [weak self] city in
-                self?.searchTextField.text = ("\(city.cityName), \(city.countryName)")
+                guard let self = self else { return }
+                self.searchTextField.text = ("\(city.cityName), \(city.countryName)")
             }
             .store(in: &cancellables)
         
@@ -66,7 +68,8 @@ class LocationViewController: UIViewController {
         viewModel.$cities
             .receive(on: DispatchQueue.main)
             .sink { [weak self] cities in
-                self?.applySnapshot(with: cities)
+                guard let self = self else { return }
+                self.applySnapshot(with: cities)
             }
             .store(in: &cancellables)
     }

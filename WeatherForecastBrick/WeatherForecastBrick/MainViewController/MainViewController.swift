@@ -58,7 +58,8 @@ class MainViewController: UIViewController {
         viewModel.$city
             .receive(on: DispatchQueue.main)
             .sink { [weak self] city in
-                self?.locationButton.setTitle("\(city.cityName), \(city.countryName)", for: .normal)
+                guard let self = self else { return }
+                self.locationButton.setTitle("\(city.cityName), \(city.countryName)", for: .normal)
             }
             .store(in: &cancellables)
         
