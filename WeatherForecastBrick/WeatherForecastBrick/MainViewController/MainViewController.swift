@@ -229,8 +229,7 @@ class MainViewController: UIViewController {
         }
         
         // MARK: - Magnifying Glass Image View
-        magnifyingGlassUIImageView = UIImageView(image: UIImage.iconSearch)
-        magnifyingGlassUIImageView.tintColor = .black
+        magnifyingGlassUIImageView = UIImageView(image: UIImage(resource: .iconSearch))
         backgroundView.addSubview(magnifyingGlassUIImageView)
         
         magnifyingGlassUIImageView.snp.makeConstraints {
