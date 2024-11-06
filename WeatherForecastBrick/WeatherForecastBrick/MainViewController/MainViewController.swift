@@ -6,7 +6,7 @@ import SnapKit
 class MainViewController: UIViewController {
     
     // MARK: - View Model
-    private let viewModel = WeatherLocationViewModel()
+    var viewModel = WeatherLocationViewModel()
     
     // MARK: - UI Elements
     private var infoButtonView = ButtonInfoView()

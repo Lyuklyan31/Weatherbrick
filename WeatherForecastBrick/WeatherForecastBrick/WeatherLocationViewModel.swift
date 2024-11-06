@@ -167,6 +167,12 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
             break
         }
     }
+    
+    func configureForTesting(city: City, weatherData: WeatherData, isNetworkAvailable: Bool) {
+        self.city = city
+        self.weatherData = weatherData
+        self.isNetworkAvailable = isNetworkAvailable
+    }
 }
 
 // MARK: - CLLocationManagerDelegate

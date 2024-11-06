@@ -1,4 +1,5 @@
 import XCTest
+@testable import WeatherForecastBrick
 
 // WeatherAppUITests
 class WeatherAppUITests: XCTestCase {
