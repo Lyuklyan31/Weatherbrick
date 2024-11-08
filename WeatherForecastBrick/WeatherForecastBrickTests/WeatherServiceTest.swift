@@ -1,51 +1,44 @@
 import XCTest
+import CoreLocation
 @testable import WeatherForecastBrick
 
-// WeatherServiceTest
 final class WeatherServiceTest: XCTestCase {
-    var weatherService: WeatherService!
+    static var weatherService: WeatherService!
     
-    // MARK: - Setup and Teardown
+    private let kyivCoordinate = CLLocationCoordinate2D(latitude: 50.4501, longitude: 30.5234)
+    private let londonCoordinate = CLLocationCoordinate2D(latitude: 51.5074, longitude: 0.1278)
     
-    override func setUp() {
+    override class func setUp() {
         super.setUp()
         weatherService = WeatherService()
     }
     
-    override func tearDown() {
+    override class func tearDown() {
         weatherService = nil
         super.tearDown()
     }
     
-    // MARK: - Fetch Weather Tests
     func testFetchWeatherLondon() async {
-        let longitude = 0.1278
-        let latitude = 51.5074
-        
         do {
-            let weatherData = try await weatherService.fetchWeatherData(lat: latitude, lon: longitude)
+            let weatherData = try await WeatherServiceTest.weatherService.fetchWeatherData(lat: kyivCoordinate.latitude, lon: kyivCoordinate.longitude)
             
             XCTAssertGreaterThan(weatherData.main.temp, -100, "Expected a reasonable temperature value.")
             XCTAssertLessThan(weatherData.main.temp.kelvinToCelsius(), 60, "Expected a reasonable temperature value.")
             XCTAssertGreaterThan(weatherData.weather.count, 0, "Expected at least one weather condition in the response.")
         } catch {
-            XCTFail("Expected to fetch cities but got error: \(error)")
+            XCTFail("Expected to fetch weather but got error: \(error)")
         }
     }
     
-    // MARK: - Fetch Weather Tests
     func testFetchWeatherKyiv() async {
-        let longitude = 30.5234
-        let latitude = 50.4501
-        
         do {
-            let weatherData = try await weatherService.fetchWeatherData(lat: latitude, lon: longitude)
+            let weatherData = try await WeatherServiceTest.weatherService.fetchWeatherData(lat: londonCoordinate.latitude, lon: londonCoordinate.longitude)
             
             XCTAssertGreaterThan(weatherData.main.temp, -100, "Expected a reasonable temperature value.")
             XCTAssertLessThan(weatherData.main.temp.kelvinToCelsius(), 60, "Expected a reasonable temperature value.")
             XCTAssertGreaterThan(weatherData.weather.count, 0, "Expected at least one weather condition in the response.")
         } catch {
-            XCTFail("Expected to fetch cities but got error: \(error)")
+            XCTFail("Expected to fetch weather but got error: \(error)")
         }
     }
 }
