@@ -68,9 +68,9 @@
 			path = WeatherForecastBrick;
 			sourceTree = "<group>";
 		};
-		04D4F5902CDAF1550074AD2B /* MyViewControllerSnapshotTests */ = {
+		04D4F5902CDAF1550074AD2B /* MainViewControllerSnapshotTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = MyViewControllerSnapshotTests;
+			path = MainViewControllerSnapshotTests;
 			sourceTree = "<group>";
 		};
 		04FCB3312CD0156E001AB557 /* WeatherForecastBrickUITests */ = {
@@ -122,8 +122,7 @@
 				047A41922CC0978700886C8D /* WeatherForecastBrick */,
 				041F771A2CCFEA1C0004DA42 /* WeatherForecastBrickTests */,
 				04FCB3312CD0156E001AB557 /* WeatherForecastBrickUITests */,
-				04D4F5902CDAF1550074AD2B /* MyViewControllerSnapshotTests */,
-				04D4F5822CDA78280074AD2B /* Frameworks */,
+				04D4F5902CDAF1550074AD2B /* MainViewControllerSnapshotTests */,
 				047A41912CC0978700886C8D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -137,13 +136,6 @@
 				04D4F58F2CDAF1550074AD2B /* MyViewControllerSnapshotTests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		04D4F5822CDA78280074AD2B /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -209,7 +201,7 @@
 				04D4F5942CDAF1550074AD2B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				04D4F5902CDAF1550074AD2B /* MyViewControllerSnapshotTests */,
+				04D4F5902CDAF1550074AD2B /* MainViewControllerSnapshotTests */,
 			);
 			name = MyViewControllerSnapshotTests;
 			packageProductDependencies = (

@@ -1,7 +1,6 @@
 import XCTest
 @testable import WeatherForecastBrick
 
-// WeatherAppUITests
 class WeatherAppUITests: XCTestCase {
     var app: XCUIApplication!
     
@@ -13,7 +12,6 @@ class WeatherAppUITests: XCTestCase {
         app.launch()
     }
     
-    // MARK: - TestTemperatureLabel
     func testTemperatureLabelExists() {
         let temperatureLabel = app.staticTexts["temperatureLabelIdentifier"]
         XCTAssertTrue(temperatureLabel.exists, "Temperature label should exist on the main screen for the city: Kyiv")
@@ -22,7 +20,6 @@ class WeatherAppUITests: XCTestCase {
         XCTAssertTrue(isInteger, "Temperature label does not contain an integer value")
     }
     
-    // MARK: - TestWeatherConditionLabel
     func testWeatherConditionLabelDisplaysCorrectValue() {
         let weatherConditionLabel = app.staticTexts["weatherConditionLabelIdentifier"]
         XCTAssertTrue(weatherConditionLabel.exists, "Weather condition label does not exist")
@@ -33,7 +30,6 @@ class WeatherAppUITests: XCTestCase {
         XCTAssertTrue(validWeatherConditions.contains(labelValue), "Weather condition label does not contain a valid value")
     }
     
-    // MARK: - TestBrickUIImageView
     func testBrickUIImageViewPositionAfterSwipe() {
         let brickUIImageView = app.images["brickUIImageIdentifier"]
         XCTAssertTrue(brickUIImageView.waitForExistence(timeout: 0), "brickUIImageView does not exist")
@@ -45,13 +41,11 @@ class WeatherAppUITests: XCTestCase {
         XCTAssertEqual(brickUIImageView.frame.origin.y, initialY, "brickUIImageView did not return to its initial Y position")
     }
     
-    // MARK: - TestLocationButton
     func testWeatherTypeLabelExists() {
         let weatherTypeLabel = app.staticTexts["weatherConditionLabelIdentifier"]
         XCTAssertTrue(weatherTypeLabel.exists, "Weather type label should exist on the main screen for the city: Kyiv")
     }
     
-    // MARK: - TestLocationButton
     func testTapLocationButton() {
         let locationButton = app.buttons["locationButtonIdentifier"]
         XCTAssertTrue(locationButton.exists, "Location button should exist on the main screen for the city: Kyiv")
@@ -62,7 +56,6 @@ class WeatherAppUITests: XCTestCase {
         XCTAssertTrue(searchTextField.exists, "Search text field should be visible after tapping the location button for the city: Kyiv")
     }
     
-    // MARK: - TestSearchForCity
     func testSearchForCity() {
         let locationButton = app.buttons["locationButtonIdentifier"]
         XCTAssertTrue(locationButton.exists, "Location button should exist on the main screen for the city: Kyiv")
@@ -92,7 +85,6 @@ class WeatherAppUITests: XCTestCase {
         XCTAssertEqual(locationButtonTitle, "Kyiv, Ukraine", "The location button title should update to the selected city.")
     }
     
-    // MARK: - TestSelectCity
     func testSelectCity() {
         let locationButton = app.buttons["locationButtonIdentifier"]
         locationButton.tap()

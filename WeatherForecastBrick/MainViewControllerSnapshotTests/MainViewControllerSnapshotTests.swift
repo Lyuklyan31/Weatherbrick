@@ -2,7 +2,6 @@ import XCTest
 import SnapshotTesting
 @testable import WeatherForecastBrick
 
-// MARK: - MainViewControllerSnapshotTests
 class MainViewControllerSnapshotTests: XCTestCase {
     
     // MARK: - TestMainViewControllerAppearance
@@ -26,7 +25,6 @@ class MainViewControllerSnapshotTests: XCTestCase {
     }
 }
 
-// MARK: - MockViewModelWrapper
 class MockViewModelWrapper {
     private let wrappedViewModel = WeatherLocationViewModel()
     

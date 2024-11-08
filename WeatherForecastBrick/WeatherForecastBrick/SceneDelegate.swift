@@ -1,10 +1,3 @@
-//
-//  SceneDelegate.swift
-//  WeatherForecastBrick
-//
-//  Created by Mac on 17.10.2024.
-//
-
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
