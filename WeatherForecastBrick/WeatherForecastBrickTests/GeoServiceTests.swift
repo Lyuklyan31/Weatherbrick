@@ -3,17 +3,17 @@ import CoreLocation
 @testable import WeatherForecastBrick
 
 final class GeoServiceTests: XCTestCase {
-    static var geoService: GeoService!
+    var geoService: GeoService!
     
     private let kyivCoordinate = CLLocationCoordinate2D(latitude: 50.4501, longitude: 30.5234)
     private let londonCoordinate = CLLocationCoordinate2D(latitude: 51.5074, longitude: 0.1278)
         
-    override class func setUp() {
+    override func setUp() {
         super.setUp()
         geoService = GeoService()
     }
     
-    override class func tearDown() {
+    override func tearDown() {
         geoService = nil
         super.tearDown()
     }
@@ -22,7 +22,7 @@ final class GeoServiceTests: XCTestCase {
         let query = "Kyiv"
         
         do {
-            let cities = try await GeoServiceTests.geoService.fetchCitiesByName(for: query)
+            let cities = try await geoService.fetchCitiesByName(for: query)
             
             XCTAssertGreaterThan(cities.count, 0, "Expected to fetch at least one city.")
             XCTAssertEqual(cities.first?.name, "Kyiv", "Expected the first city to be Kyiv.")
@@ -36,7 +36,7 @@ final class GeoServiceTests: XCTestCase {
         let query = "nonexistent city"
         
         do {
-            let cities = try await GeoServiceTests.geoService.fetchCitiesByName(for: query)
+            let cities = try await geoService.fetchCitiesByName(for: query)
             XCTAssertTrue(cities.isEmpty, "Expected an empty array when the city does not exist.")
         } catch {
             XCTFail("Unexpected error thrown: \(error)")
@@ -45,9 +45,7 @@ final class GeoServiceTests: XCTestCase {
     
     func testFetchByCoordinatesKyiv() async {
         do {
-            let city = try await GeoServiceTests.geoService.fetchCityByCoordinates(
-                longitude: kyivCoordinate.longitude, latitude: kyivCoordinate.latitude
-            )
+            let city = try await geoService.fetchCityByCoordinates(coordinate: kyivCoordinate)
             
             XCTAssertEqual(city.name, "Kyiv", "Expected the city to be Kyiv.")
             XCTAssertEqual(city.country, "UA", "Expected the city to be Kyiv.")
@@ -58,9 +56,7 @@ final class GeoServiceTests: XCTestCase {
     
     func testFetchByCoordinatesLondon() async {
         do {
-            let city = try await GeoServiceTests.geoService.fetchCityByCoordinates(
-                longitude: londonCoordinate.longitude, latitude: londonCoordinate.latitude
-            )
+            let city = try await geoService.fetchCityByCoordinates(coordinate: londonCoordinate)
             
             XCTAssertEqual(city.name, "London", "Expected the city to be London.")
             XCTAssertEqual(city.country, "GB", "Expected the city to be UK.")

@@ -1,14 +1,15 @@
 import Foundation
+import CoreLocation
 
 // MARK: - WeatherService
 class WeatherService {
     
     // MARK: - Fetch Data
     
-    func fetchWeatherData(lat: Double, lon: Double) async throws -> WeatherData {
+    func fetchWeatherData(coordinate: CLLocationCoordinate2D) async throws -> WeatherData {
         let apiKey = APIKeyProvider.getAPIKey()
         
-        let urlString =  "https://api.openweathermap.org/data/2.5/weather?lat=\(lat)&lon=\(lon)&appid=\(apiKey)"
+        let urlString =  "https://api.openweathermap.org/data/2.5/weather?lat=\(coordinate.latitude)&lon=\(coordinate.longitude)&appid=\(apiKey)"
      
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
@@ -20,5 +21,3 @@ class WeatherService {
         return weatherData
     }
 }
-
-

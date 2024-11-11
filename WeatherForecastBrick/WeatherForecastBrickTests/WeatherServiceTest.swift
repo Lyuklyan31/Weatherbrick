@@ -3,24 +3,24 @@ import CoreLocation
 @testable import WeatherForecastBrick
 
 final class WeatherServiceTest: XCTestCase {
-    static var weatherService: WeatherService!
+    var weatherService: WeatherService!
     
     private let kyivCoordinate = CLLocationCoordinate2D(latitude: 50.4501, longitude: 30.5234)
     private let londonCoordinate = CLLocationCoordinate2D(latitude: 51.5074, longitude: 0.1278)
     
-    override class func setUp() {
+    override func setUp() {
         super.setUp()
         weatherService = WeatherService()
     }
     
-    override class func tearDown() {
+    override func tearDown() {
         weatherService = nil
         super.tearDown()
     }
     
     func testFetchWeatherLondon() async {
         do {
-            let weatherData = try await WeatherServiceTest.weatherService.fetchWeatherData(lat: kyivCoordinate.latitude, lon: kyivCoordinate.longitude)
+            let weatherData = try await weatherService.fetchWeatherData(coordinate: kyivCoordinate)
             
             XCTAssertGreaterThan(weatherData.main.temp, -100, "Expected a reasonable temperature value.")
             XCTAssertLessThan(weatherData.main.temp.kelvinToCelsius(), 60, "Expected a reasonable temperature value.")
@@ -32,7 +32,7 @@ final class WeatherServiceTest: XCTestCase {
     
     func testFetchWeatherKyiv() async {
         do {
-            let weatherData = try await WeatherServiceTest.weatherService.fetchWeatherData(lat: londonCoordinate.latitude, lon: londonCoordinate.longitude)
+            let weatherData = try await weatherService.fetchWeatherData(coordinate: londonCoordinate)
             
             XCTAssertGreaterThan(weatherData.main.temp, -100, "Expected a reasonable temperature value.")
             XCTAssertLessThan(weatherData.main.temp.kelvinToCelsius(), 60, "Expected a reasonable temperature value.")

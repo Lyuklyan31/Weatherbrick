@@ -10,25 +10,24 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     struct City: Hashable, Equatable {
         var cityName = ""
         var countryName = ""
-        var latitude = 0.0
-        var longitude = 0.0
+        var coordinate = CLLocationCoordinate2D()
         var id = UUID()
         var isSelected = false
         
         // MARK: Equatable
         static func == (lhs: City, rhs: City) -> Bool {
             return lhs.cityName == rhs.cityName &&
-            lhs.countryName == rhs.countryName &&
-            lhs.latitude == rhs.latitude &&
-            lhs.longitude == rhs.longitude
+                lhs.countryName == rhs.countryName &&
+                lhs.coordinate.latitude == rhs.coordinate.latitude &&
+                lhs.coordinate.longitude == rhs.coordinate.longitude
         }
         
         // MARK: Hashable
         func hash(into hasher: inout Hasher) {
             hasher.combine(cityName)
             hasher.combine(countryName)
-            hasher.combine(latitude)
-            hasher.combine(longitude)
+            hasher.combine(coordinate.latitude)
+            hasher.combine(coordinate.longitude)
         }
     }
     
@@ -79,7 +78,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     // MARK: - Get Weather Data
     private func getWeather() async {
         do {
-            self.weatherData = try await weatherService.fetchWeatherData(lat: city.latitude, lon: city.longitude)
+            self.weatherData = try await weatherService.fetchWeatherData(coordinate: city.coordinate)
         } catch {
             self.weatherData = nil
             alertMessage = "Error fetching weather data."
@@ -96,8 +95,7 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
                 let newCity = City(
                     cityName: city.name,
                     countryName: city.fullCountryName,
-                    latitude: city.lat,
-                    longitude: city.lon
+                    coordinate: CLLocationCoordinate2D(latitude: city.lat, longitude: city.lon)
                 )
                 
                 if !newCities.contains(newCity) {
@@ -113,14 +111,13 @@ class WeatherLocationViewModel: NSObject, ObservableObject {
     }
     
     // MARK: - Fetch City by Coordinate
-    private func fetchCityByCoordinate(latitude: Double, longitude: Double) async {
+    private func fetchCityByCoordinate(coordinate: CLLocationCoordinate2D) async {
         do {
-            let fetchedCity = try await geoService.fetchCityByCoordinates(longitude: longitude, latitude: latitude)
+            let fetchedCity = try await geoService.fetchCityByCoordinates(coordinate: coordinate)
             city = City(
                 cityName: fetchedCity.name,
                 countryName: fetchedCity.fullCountryName,
-                latitude: fetchedCity.lat,
-                longitude: fetchedCity.lon
+                coordinate: CLLocationCoordinate2D(latitude: fetchedCity.lat, longitude: fetchedCity.lon)
             )
         } catch {
             self.cities = []
@@ -174,7 +171,7 @@ extension WeatherLocationViewModel: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.first {
             Task {
-                await fetchCityByCoordinate(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+                await fetchCityByCoordinate(coordinate: location.coordinate)
             }
         }
     }

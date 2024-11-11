@@ -1,4 +1,5 @@
 import Foundation
+import CoreLocation
 
 // MARK: - GeoService
 class GeoService {
@@ -24,10 +25,10 @@ class GeoService {
     }
     
     // MARK: - Fetch Single City by Coordinates
-    func fetchCityByCoordinates(longitude: Double, latitude: Double) async throws -> CityData {
+    func fetchCityByCoordinates(coordinate: CLLocationCoordinate2D) async throws -> CityData {
         let apiKey = APIKeyProvider.getAPIKey()
         
-        let urlString = "https://api.openweathermap.org/geo/1.0/reverse?lat=\(latitude)&lon=\(longitude)&limit=1&appid=\(apiKey)"
+        let urlString = "https://api.openweathermap.org/geo/1.0/reverse?lat=\(coordinate.latitude)&lon=\(coordinate.longitude)&limit=1&appid=\(apiKey)"
         
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
