@@ -4,7 +4,6 @@ import SnapshotTesting
 
 class MainViewControllerSnapshotTests: XCTestCase {
     
-    // MARK: - TestMainViewControllerAppearance
     func testMainViewControllerAppearance() {
         let expectation = self.expectation(description: "Waiting for UI to load")
         
