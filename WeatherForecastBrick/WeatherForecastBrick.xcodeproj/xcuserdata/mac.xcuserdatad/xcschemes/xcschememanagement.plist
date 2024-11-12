@@ -4,10 +4,33 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>SnapKitPlayground (Playground).xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
 		<key>WeatherForecastBrick.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>041F77182CCFEA1C0004DA42</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>047A418F2CC0978700886C8D</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>04FCB32F2CD0156E001AB557</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>
